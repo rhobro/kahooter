@@ -1,0 +1,103 @@
+import argparse as ap
+import json
+import subprocess as sp
+import time as t
+
+import requests as rq
+
+sess = rq.session()
+
+
+def rand_ua():
+    child = sp.Popen("./go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
+    return child.stdout.read().decode()
+
+
+def time():
+    return int(t.time() * 1000)
+
+
+parser = ap.ArgumentParser()
+parser.add_argument("-id", "--quizid", help="ID of the quiz you are automating")
+parser.add_argument("-name", "--name", help="Character name to use with the quiz")
+args = parser.parse_args()
+name = args.name
+
+# request challenge
+challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.quizid}?includeKahoot=true")
+challenge = json.loads(challenge.content)
+
+# get name
+if challenge["game_options"]["namerator"]:
+    namerator = sess.get("https://apis.kahoot.it/namerator")
+    namerator = json.loads(namerator.content)
+    name = namerator["name"]
+name = name.replace(" ", "")
+print("Using name: " + name)
+
+# template_uuid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# uuid = ""
+# hex_chars = "0123456789abcdef"
+# for c in template_uuid:
+#     if c == "x":
+#         uuid += hex_chars[rd.randint(0, len(hex_chars) - 1)]
+#     else:
+#         uuid += c
+
+# join challenge
+cid = sess.post(f"https://kahoot.it/rest/challenges/{args.quizid}/join/?nickname={name}")
+cid = json.loads(cid.content)
+cid = cid["playerCid"]
+print(f"Player Cid {cid}")
+
+# answer questions
+for i, q in enumerate(challenge["kahoot"]["questions"]):
+    ans_sub = {
+        "quizId": challenge["quizId"],
+        "quizTitle": challenge["kahoot"]["title"],
+        "quizType": challenge["kahoot"]["quizType"],
+        "quizMaster": challenge["quizMaster"],
+        "sessionId": challenge["pin"],
+        "device": {
+            "userAgent": rand_ua(),
+            "screen": {
+                "width": 1980,
+                "height": 1080
+            }
+        },
+        "gameMode": challenge["game_options"]["scoring_version"],
+        "gameOptions": 0,
+        "hostOrganisationId": challenge["hostOrganisationId"],
+        "kickedPlayers": [],
+        "numQuestions": len(challenge["kahoot"]["questions"]),
+        "organisationId": challenge["organisationId"],
+        "startTime": challenge["startTime"],
+        "question": q
+    }
+    ans_sub["question"]["index"] = i
+    ans_sub["question"]["duration"] = ans_sub["question"].pop("time")
+    ans_sub["question"]["startTime"] = 0
+    ans_sub["question"]["skipped"] = False
+    ans_sub["question"]["format"] = ans_sub["question"].pop("questionFormat")
+    ans_sub["question"]["lag"] = 0
+    ans_sub["question"]["answers"] = []
+
+    for j, c in enumerate(q["choices"]):
+        if c["correct"]:
+            ans_sub["question"]["answers"].append({
+                "receivedTime": time(),
+                "reactionTime": 0,
+                "playerId": name,
+                "playerCid": cid,
+                "choiceIndex": j,
+                "text": c["answer"],
+                "isCorrect": True,
+                "points": 1000,
+                "bonusPoints": {
+                    "answerStreakBonus": 500
+                }
+            })
+            print(f"Q{i + 1}: " + c["answer"])
+
+    # post answer
+    sess.post(f"https://kahoot.it/rest/challenges/{args.quizid}/answers", json=ans_sub)
