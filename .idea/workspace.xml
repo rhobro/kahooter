@@ -2,9 +2,263 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="second init - conv to python">
-      <change afterPath="$PROJECT_DIR$/go/bin/randua" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/go/randua.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/live.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/challenge.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_210" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_210" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_211" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_211" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_212" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_212" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_213" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_213" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_216" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_216" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_217" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_217" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_272" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_272" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_276" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_276" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_282" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_282" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_285" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_285" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_290" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_290" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_292" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_292" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_294" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_294" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_297" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_297" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_298" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_298" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_299" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_299" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_301" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_301" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_303" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_303" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_304" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_304" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_305" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_305" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_307" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_307" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_308" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_308" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_311" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_311" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_313" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_313" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_314" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_314" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_315" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_315" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_317" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_317" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_319" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_319" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_320" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_320" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_321" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_321" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_322" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_322" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_323" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_323" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_324" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_324" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_325" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_325" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_326" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_326" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_328" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_328" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_329" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_329" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_331" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_331" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_332" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_332" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_333" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_333" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_334" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_334" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_335" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_335" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_336" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_336" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_338" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_338" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_339" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_339" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_340" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_340" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_341" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_341" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_343" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_343" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_344" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_344" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_345" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_345" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_348" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_348" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_349" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_349" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_350" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_350" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_353" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_353" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_354" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_354" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_355" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_355" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_358" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_358" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_359" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_359" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_361" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_361" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_362" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_362" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_363" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_363" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_364" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_364" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_366" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_366" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_367" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_367" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_368" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_368" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_370" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_370" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_371" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_371" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_373" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_373" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_375" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_375" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_376" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_376" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_377" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_377" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_378" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_378" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_381" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_381" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_382" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_382" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_383" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_383" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_384" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_384" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_385" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_385" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_387" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_387" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_388" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_388" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/rq_n_js.proxymanlog/request_389" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/rq_n_js.proxymanlog/request_389" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_209" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_209" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_210" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_210" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_211" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_211" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_212" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_212" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_213" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_213" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_214" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_214" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_215" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_215" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_216" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_216" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_217" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_217" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_218" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_218" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_219" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_219" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_220" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_220" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_221" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_221" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_222" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_222" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_223" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_223" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_224" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_224" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_225" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_225" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_226" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_226" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_227" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_227" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_228" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_228" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_229" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_229" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_230" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_230" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_231" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_231" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_232" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_232" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_233" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_233" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_234" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_234" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_235" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_235" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_236" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_236" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_237" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_237" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_238" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_238" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_239" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_239" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_240" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_240" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_241" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_241" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_242" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_242" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_243" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_243" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_244" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_244" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_245" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_245" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_246" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_246" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_247" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_247" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_248" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_248" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_249" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_249" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_250" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_250" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_251" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_251" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_252" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_252" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_253" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_253" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_254" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_254" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_255" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_255" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_256" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_256" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_257" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_257" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_258" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_258" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_259" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_259" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_260" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_260" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_261" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_261" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_262" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_262" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_263" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_263" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_264" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_264" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_265" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_265" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_266" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_266" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_267" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_267" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_268" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_268" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_269" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_269" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_270" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_270" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_271" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_271" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_272" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_272" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_273" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_273" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_274" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_274" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_275" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_275" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_276" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_276" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_277" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_277" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_278" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_278" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_279" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_279" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_280" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_280" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_281" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_281" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_282" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_282" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_283" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_283" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_284" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_284" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_285" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_285" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_286" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_286" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_287" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_287" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_288" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_288" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_289" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_289" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_290" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_290" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_291" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_291" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_292" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_292" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_293" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_293" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_294" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_294" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_295" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_295" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_296" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_296" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_297" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_297" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_298" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_298" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_299" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_299" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_300" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_300" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_301" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_301" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_303" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_303" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_304" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_304" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_305" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_305" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_307" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_307" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_308" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_308" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_310" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_310" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_311" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_311" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_313" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_313" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_314" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_314" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_315" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_315" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_316" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_316" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_317" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_317" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_318" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_318" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_319" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_319" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_320" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_320" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_321" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_321" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_322" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_322" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_323" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_323" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_324" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_324" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_325" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_325" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_326" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_326" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_328" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_328" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_329" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_329" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_330" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_330" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_331" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_331" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_332" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_332" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_333" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_333" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_334" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_334" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_335" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_335" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_336" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_336" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_337" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_337" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_338" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_338" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_339" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_339" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_340" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_340" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_341" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_341" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_342" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_342" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_343" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_343" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_344" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_344" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_345" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_345" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_347" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_347" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_348" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_348" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_349" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_349" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_350" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_350" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_352" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_352" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_353" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_353" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_354" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_354" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_355" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_355" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_356" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_356" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_357" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_357" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_358" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_358" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_359" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_359" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_360" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_360" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_361" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_361" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_362" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_362" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_363" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_363" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_364" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_364" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_365" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_365" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_366" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_366" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_367" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_367" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_368" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_368" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_370" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_370" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_371" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_371" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_372" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_372" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_373" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_373" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_375" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_375" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_376" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_376" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_377" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_377" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_378" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_378" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_379" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_379" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_380" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_380" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_381" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_381" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_382" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_382" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_383" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_383" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_384" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_384" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_385" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_385" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_386" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_386" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_387" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_387" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_388" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_388" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_389" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_389" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/planning/unfiltered.proxymanlog/request_390" beforeDir="false" afterPath="$PROJECT_DIR$/planning/challenge/unfiltered.proxymanlog/request_390" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +301,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
   <component name="RunManager">
@@ -87,6 +342,9 @@
       <option name="presentableId" value="Default" />
       <updated>1613315877309</updated>
       <workItem from="1613315881053" duration="10501000" />
+      <workItem from="1613402572234" duration="5090000" />
+      <workItem from="1613557162730" duration="3116000" />
+      <workItem from="1613576868370" duration="7293000" />
     </task>
     <servers />
   </component>
