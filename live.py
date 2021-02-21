@@ -8,10 +8,9 @@ from challenge import *
 # os.environ["http_proxy"] = "http://localhost:9090"
 # os.environ["https_proxy"] = "http://localhost:9090"
 
-code = 4952846
+code = 1241593
 name = "namerator"
 device = rand_device()
-cid = ""
 
 
 def main():
@@ -23,7 +22,7 @@ def main():
     # name = args.name
 
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}", verify=False)
+    challenge = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}")
     if "x-kahoot-session-token" not in challenge.headers.keys():
         print(f"Invalid code {code}")
         sys.exit(0)
@@ -34,10 +33,9 @@ def main():
     # extract message and offset
     offset_equation = challenge["challenge"][challenge["challenge"].index("=") + 1:].strip()
     offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
-    # offsetEquation = challenge["challenge"][0: max(0, challenge["challenge"].index(";"))].strip()
     tmp_msg = challenge["challenge"][challenge["challenge"].index("'"):]
-    tmp_msg = tmp_msg[: tmp_msg.index(")")]
-    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")[1: -1]
+    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
+    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
     # reserve challenge to answer
     msg = ""
     for i, c in enumerate(tmp_msg):
@@ -60,17 +58,16 @@ def main():
     asio.get_event_loop().run_until_complete(async_main(url))
 
 
-cli_id = ""
-player_cid = ""
-answers = []
+cli_id = None
+cid = None
 
 
 async def async_main(url):
     global cli_id
-    global player_cid
-    global answers
+    global cid
     global latest_id
-    global quiz_logic_running
+    global logged_in
+    global questions_started
 
     async with wss.connect(url) as ws:
         # handshake + connect
@@ -120,7 +117,71 @@ async def async_main(url):
             rsp = await json_recv(ws)
 
             for rsp in rsp:
-                if rsp["channel"] == "/meta/connect":
+                if rsp["channel"] == "/service/controller":
+                    if "data" in rsp.keys():
+                        if rsp["data"]["type"] == "loginResponse":
+                            if "cid" in rsp["data"].keys():
+                                cid = rsp["data"]["cid"]
+                            else:
+                                print(f"Invalid code {code}")
+                                sys.exit(0)
+
+                elif rsp["channel"] == "/service/player":
+                    if questions_started:
+                        q = json.loads(rsp["data"]["content"])
+                        if q["timeRemaining"] > 0:
+                            req = {
+                                "id": str(latest_id + 1),
+                                "channel": "/service/controller",
+                                "data": {
+                                    "id": rsp["data"]["id"] + 1,
+                                    "type": "message",
+                                    "gameid": code,
+                                    "host": "kahoot.it",
+                                    "content": {
+                                        "type": "quiz",
+                                        "choice": 0,
+                                        "questionIndex": q["questionIndex"],
+                                        "meta": {"lag": 106}
+                                    }
+                                },
+                                "clientId": cli_id,
+                                "ext": {}
+                            }
+
+                            # switch between question types
+                            if q["layout"] == "TRUE_FALSE":
+                                # boolean questions
+                                a = 3
+
+                            # json dumps content and send
+                            req["data"]["content"] = [json.dumps(req["data"]["content"])]
+                            await json_send(ws, req)
+
+                    else:
+                        if "playerV2" in rsp["data"]["content"]:
+                            await json_send(ws, [
+                                {
+                                    "id": str(latest_id + 1),
+                                    "channel": "/service/controller",
+                                    "data": {
+                                        "id": rsp["data"]["id"] + 1,
+                                        "type": "message",
+                                        "gameid": code,
+                                        "host": "kahoot.it",
+                                        "content": ""
+                                    },
+                                    "clientId": cli_id,
+                                    "ext": {}
+                                }
+                            ])
+                            time.sleep(0.7)
+
+                        elif "quizTitle" in rsp["data"]["content"]:
+                            questions_started = True  # quiz admin has started the quiz
+
+                elif rsp["channel"] == "/meta/connect":
+                    # acknowledge client is alive
                     latest_id = int(rsp["id"]) + 1
                     await json_send(ws, [
                         {
@@ -139,64 +200,32 @@ async def async_main(url):
                         }
                     ], True)
 
-                elif rsp["channel"] == "/service/controller":
-                    if "data" in rsp.keys():
-                        if rsp["data"]["type"] == "loginResponse":
-                            player_cid = rsp["data"]["cid"]
-
-                elif rsp["channel"] == "/service/player":
-                    if "playerV2" in rsp["data"]["content"]:
-                        await json_send(ws, [
-                            {
-                                "id": str(latest_id + 1),
-                                "channel": "/service/controller",
-                                "data": {
-                                    "id": rsp["data"]["id"] + 2,
-                                    "type": "message",
-                                    "gameid": code,
-                                    "host": "kahoot.it",
-                                    "content": ""
-                                },
-                                "clientId": cli_id,
-                                "ext": {}
-                            }
-                        ])
-
-                        time.sleep(0.7)
-                    elif "defaultQuizData" in rsp["data"]["content"]:
-                        answers = json.loads(rsp["data"]["content"])["defaultQuizData"]["quizQuestionAnswers"]
-
             # start quiz logic
-            if not quiz_logic_running:
-                asio.create_task(quiz(ws))
-                quiz_logic_running = True
+            if not logged_in:
+                time.sleep(1)
+                # join with player name
+                await json_send(ws, [
+                    {
+                        "id": str(latest_id + 1),
+                        "channel": "/service/controller",
+                        "data": {
+                            "type": "login",
+                            "gameid": str(code),
+                            "host": "kahoot.it",
+                            "name": name,
+                            "content": json.dumps(device)
+                        },
+                        "clientId": cli_id,
+                        "ext": {}
+                    }
+                ])
+                time.sleep(1)
+                logged_in = True
 
 
-quiz_logic_running = False
+logged_in = False
 latest_id = 0
-
-
-async def quiz(ws):
-    time.sleep(1)
-
-    # join with player name
-    await json_send(ws, [
-        {
-            "id": str(latest_id + 1),
-            "channel": "/service/controller",
-            "data": {
-                "type": "login",
-                "gameid": str(code),
-                "host": "kahoot.it",
-                "name": name,
-                "content": json.dumps(device)
-            },
-            "clientId": cli_id,
-            "ext": {}
-        }
-    ])
-
-    time.sleep(1)
+questions_started = False
 
 
 async def json_send(ws, obj, ack=False):

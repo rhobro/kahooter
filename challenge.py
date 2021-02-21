@@ -26,7 +26,7 @@ def rand_device():
 
 
 def namerator():
-    nrtor = sess.get("https://apis.kahoot.it/namerator", verify=False)
+    nrtor = sess.get("https://apis.kahoot.it/namerator")
     nrtor = json.loads(nrtor.content)
     return nrtor["name"]
 
@@ -44,7 +44,7 @@ def main():
     ua = rand_ua()
 
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true", verify=False)
+    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true")
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
@@ -59,17 +59,8 @@ def main():
     name = name.replace(" ", "")
     print("Using name: " + name)
 
-    # template_uuid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-    # uuid = ""
-    # hex_chars = "0123456789abcdef"
-    # for c in template_uuid:
-    #     if c == "x":
-    #         uuid += hex_chars[rd.randint(0, len(hex_chars) - 1)]
-    #     else:
-    #         uuid += c
-
     # join challenge
-    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}", verify=False)
+    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}")
     cid = json.loads(cid.content)
     cid = cid["playerCid"]
 
@@ -119,16 +110,16 @@ def main():
                     "playerCid": cid,
                     "choiceIndex": j,
                     "text": c["answer"],
-                    "isCorrect": True,
-                    "points": 1000,
+                    "isCorrect": c["correct"],
+                    "points": 1000 * q["pointsMultiplier"],
                     "bonusPoints": {
-                        "answerStreakBonus": 500
+                        "answerStreakBonus": 500 * q["pointsMultiplier"]
                     }
                 })
-                print(f"Q{i + 1}: " + c["answer"])
+        print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
 
         # post answer
-        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub, verify=False)
+        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub)
 
 
 if __name__ == "__main__":
