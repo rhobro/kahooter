@@ -8,7 +8,7 @@ from challenge import *
 # os.environ["http_proxy"] = "http://localhost:9090"
 # os.environ["https_proxy"] = "http://localhost:9090"
 
-code = 1241593
+code = 7223722
 name = "namerator"
 device = rand_device()
 
@@ -22,7 +22,7 @@ def main():
     # name = args.name
 
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}")
+    challenge = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}", verify=False)
     if "x-kahoot-session-token" not in challenge.headers.keys():
         print(f"Invalid code {code}")
         sys.exit(0)
@@ -129,34 +129,34 @@ async def async_main(url):
                 elif rsp["channel"] == "/service/player":
                     if questions_started:
                         q = json.loads(rsp["data"]["content"])
-                        if q["timeRemaining"] > 0:
-                            req = {
-                                "id": str(latest_id + 1),
-                                "channel": "/service/controller",
-                                "data": {
-                                    "id": rsp["data"]["id"] + 1,
-                                    "type": "message",
-                                    "gameid": code,
-                                    "host": "kahoot.it",
-                                    "content": {
-                                        "type": "quiz",
-                                        "choice": 0,
-                                        "questionIndex": q["questionIndex"],
-                                        "meta": {"lag": 106}
-                                    }
-                                },
-                                "clientId": cli_id,
-                                "ext": {}
-                            }
 
-                            # switch between question types
-                            if q["layout"] == "TRUE_FALSE":
-                                # boolean questions
-                                a = 3
+                        if "timeLeft" in q.keys() and "getReadyTimeRemaining" not in q.keys():
+                            if q["timeLeft"] > 0:
+                                latest_id += 1
+                                req = [{
+                                    "id": str(latest_id),
+                                    "channel": "/service/controller",
+                                    "data": {
+                                        "id": 45,
+                                        "type": "message",
+                                        "gameid": str(code),
+                                        "host": "kahoot.it",
+                                        "content": {
+                                            'type': 'quiz',
+                                            'choice': 2,
+                                            'questionIndex': q["questionIndex"],
+                                            'meta': {'lag': 127}
+                                        }
+                                    },
+                                    "clientId": cli_id,
+                                    "ext": {}
+                                }]
 
-                            # json dumps content and send
-                            req["data"]["content"] = [json.dumps(req["data"]["content"])]
-                            await json_send(ws, req)
+                                # json dumps content and send
+                                req[0]["data"]["content"] = json.dumps(req[0]["data"]["content"])
+                                time.sleep(0.25)
+                                await json_send(ws, req)
+                                print(f"answered question {q['questionIndex'] + 1}")
 
                     else:
                         if "playerV2" in rsp["data"]["content"]:
@@ -179,6 +179,7 @@ async def async_main(url):
 
                         elif "quizTitle" in rsp["data"]["content"]:
                             questions_started = True  # quiz admin has started the quiz
+                            print("admin started quiz")
 
                 elif rsp["channel"] == "/meta/connect":
                     # acknowledge client is alive

@@ -7,7 +7,6 @@ import time
 import requests as rq
 
 sess = rq.session()
-sess.proxies.setdefault("http", "http://localhost:9090")
 
 
 def rand_ua():
@@ -26,9 +25,9 @@ def rand_device():
 
 
 def namerator():
-    nrtor = sess.get("https://apis.kahoot.it/namerator")
-    nrtor = json.loads(nrtor.content)
-    return nrtor["name"]
+    name = sess.get("https://apis.kahoot.it/namerator", verify=False)
+    name = json.loads(name.content)
+    return name["name"]
 
 
 def t():
@@ -44,7 +43,7 @@ def main():
     ua = rand_ua()
 
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true")
+    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true", verify=False)
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
@@ -60,7 +59,7 @@ def main():
     print("Using name: " + name)
 
     # join challenge
-    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}")
+    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}", verify=False)
     cid = json.loads(cid.content)
     cid = cid["playerCid"]
 
@@ -119,7 +118,7 @@ def main():
         print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
 
         # post answer
-        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub)
+        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub, verify=False)
 
 
 if __name__ == "__main__":
