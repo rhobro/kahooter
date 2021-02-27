@@ -1,5 +1,6 @@
 import asyncio as asio
 import base64 as b64
+import random as rand
 
 import websockets as wss
 
@@ -8,9 +9,35 @@ from challenge import *
 # os.environ["http_proxy"] = "http://localhost:9090"
 # os.environ["https_proxy"] = "http://localhost:9090"
 
-code = 7223722
+code = 2942856
 name = "namerator"
 device = rand_device()
+
+
+def decrypt_websock(js_key, sess_tok):
+    # decrypt cometd path
+
+    # extract message and offset
+    offset_equation = js_key[js_key.index("=") + 1:].strip()
+    offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
+    tmp_msg = js_key[js_key.index("'"):]
+    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
+    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
+
+    # reserve challenge to answer
+    msg = ""
+    for i, c in enumerate(tmp_msg):
+        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)
+
+    # base64 decode session token
+    b64_sess_tok = b64.decodebytes(bytes(sess_tok, "utf-8")).decode("utf-8")
+
+    # xor message and base64 session token
+    cometd_path = ""
+    for i, c in enumerate(b64_sess_tok):
+        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
+
+    return f"wss://kahoot.it/cometd/{code}/{cometd_path}"
 
 
 def main():
@@ -22,40 +49,21 @@ def main():
     # name = args.name
 
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}", verify=False)
-    if "x-kahoot-session-token" not in challenge.headers.keys():
+    c_rq = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}", verify=False)
+    if "x-kahoot-session-token" not in c_rq.headers.keys():
         print(f"Invalid code {code}")
         sys.exit(0)
-    sess_tok = challenge.headers["x-kahoot-session-token"]
-    challenge = json.loads(challenge.content)
-
-    # decrypt cometd path
-    # extract message and offset
-    offset_equation = challenge["challenge"][challenge["challenge"].index("=") + 1:].strip()
-    offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
-    tmp_msg = challenge["challenge"][challenge["challenge"].index("'"):]
-    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
-    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
-    # reserve challenge to answer
-    msg = ""
-    for i, c in enumerate(tmp_msg):
-        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)
-    # base64 decode session token
-    b64_sess_tok = b64.decodebytes(bytes(sess_tok, "utf-8")).decode("utf-8")
-    # xor message and base64 session token
-    cometd_path = ""
-    for i, c in enumerate(b64_sess_tok):
-        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
-    url = f"wss://kahoot.it/cometd/{code}/{cometd_path}"
+    c = json.loads(c_rq.content)
 
     # get name
     global name
-    if challenge["namerator"] or name == "namerator":
+    if c["namerator"] or name == "namerator":
         name = namerator()
     name = name.replace(" ", "")
     print("Using name: " + name)
 
-    asio.get_event_loop().run_until_complete(async_main(url))
+    websock_url = decrypt_websock(c["challenge"], c_rq.headers["x-kahoot-session-token"])
+    asio.get_event_loop().run_until_complete(async_main(websock_url))
 
 
 cli_id = None
@@ -142,10 +150,10 @@ async def async_main(url):
                                         "gameid": str(code),
                                         "host": "kahoot.it",
                                         "content": {
-                                            'type': 'quiz',
-                                            'choice': 2,
-                                            'questionIndex': q["questionIndex"],
-                                            'meta': {'lag': 127}
+                                            "type": "quiz",
+                                            "choice": rand.randint(0, q["quizQuestionAnswers"][q["questionIndex"]] - 1),
+                                            "questionIndex": q["questionIndex"],
+                                            "meta": {"lag": 127}
                                         }
                                     },
                                     "clientId": cli_id,

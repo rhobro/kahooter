@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/challenge.py" beforeDir="false" afterPath="$PROJECT_DIR$/challenge.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/live.py" beforeDir="false" afterPath="$PROJECT_DIR$/live.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +101,7 @@
       <workItem from="1614158274971" duration="3143000" />
       <workItem from="1614186421358" duration="1604000" />
       <workItem from="1614243841021" duration="828000" />
-      <workItem from="1614260394336" duration="709000" />
+      <workItem from="1614260394336" duration="9403000" />
     </task>
     <task id="LOCAL-00001" summary="decrypted cometd">
       <created>1613598867835</created>
@@ -124,7 +124,14 @@
       <option name="project" value="LOCAL" />
       <updated>1613925928111</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="able to answer questions&#10;&#10;next -&gt; to answer correctly">
+      <created>1614261448617</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1614261448617</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -153,7 +160,8 @@
     <MESSAGE value="decrypted cometd" />
     <MESSAGE value="implemented handshake, login and answer reception" />
     <MESSAGE value="can join quiz and wait for quiz to start" />
-    <option name="LAST_COMMIT_MESSAGE" value="can join quiz and wait for quiz to start" />
+    <MESSAGE value="able to answer questions&#10;&#10;next -&gt; to answer correctly" />
+    <option name="LAST_COMMIT_MESSAGE" value="able to answer questions&#10;&#10;next -&gt; to answer correctly" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -167,6 +175,6 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/kahooter$main.coverage" NAME="main Coverage Results" MODIFIED="1613375803366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/kahooter$live.coverage" NAME="live Coverage Results" MODIFIED="1614261007070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/kahooter$live.coverage" NAME="live Coverage Results" MODIFIED="1614459568959" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
