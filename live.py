@@ -63,7 +63,7 @@ def main():
         sys.exit(0)
 
     # request challenge
-    c_rq = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}", verify=False)
+    c_rq = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}")
     if "x-kahoot-session-token" not in c_rq.headers.keys():
         print(f"Invalid code {code}")
         sys.exit(0)
@@ -75,8 +75,8 @@ def main():
     name = name.replace(" ", "")
     print("Using name: " + name)
 
-    websock_url = decrypt_websock(c["challenge"], c_rq.headers["x-kahoot-session-token"])
-    asio.get_event_loop().run_until_complete(async_main(websock_url))
+    ws_url = decrypt_websock(c["challenge"], c_rq.headers["x-kahoot-session-token"])
+    asio.get_event_loop().run_until_complete(async_main(ws_url))
 
 
 async def async_main(url):

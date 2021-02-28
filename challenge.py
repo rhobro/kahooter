@@ -25,7 +25,7 @@ def rand_device():
 
 
 def namerator():
-    name = sess.get("https://apis.kahoot.it/namerator", verify=False)
+    name = sess.get("https://apis.kahoot.it/namerator")
     name = json.loads(name.content)
     return name["name"]
 
@@ -43,7 +43,7 @@ def main():
     ua = rand_ua()
 
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true", verify=False)
+    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true")
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
@@ -59,7 +59,7 @@ def main():
     print("Using name: " + name)
 
     # join challenge
-    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}", verify=False)
+    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}")
     cid = json.loads(cid.content)
     cid = cid["playerCid"]
 
@@ -118,7 +118,7 @@ def main():
         print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
 
         # post answer
-        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub, verify=False)
+        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub)
 
 
 if __name__ == "__main__":
