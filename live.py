@@ -9,7 +9,7 @@ from challenge import *
 # os.environ["http_proxy"] = "http://localhost:9090"
 # os.environ["https_proxy"] = "http://localhost:9090"
 
-code = 2942856
+code = 2977276
 name = "namerator"
 device = rand_device()
 
@@ -121,7 +121,8 @@ async def async_main(url):
         ])
 
         # start dance with router
-        while True:
+        run = True
+        while run:
             rsp = await json_recv(ws)
 
             for rsp in rsp:
@@ -136,10 +137,11 @@ async def async_main(url):
 
                 elif rsp["channel"] == "/service/player":
                     if questions_started:
-                        q = json.loads(rsp["data"]["content"])
+                        msg = json.loads(rsp["data"]["content"])
 
-                        if "timeLeft" in q.keys() and "getReadyTimeRemaining" not in q.keys():
-                            if q["timeLeft"] > 0:
+                        if "timeLeft" in msg.keys() and "getReadyTimeRemaining" not in msg.keys():
+                            if msg["timeLeft"] > 0:
+                                # answer
                                 latest_id += 1
                                 req = [{
                                     "id": str(latest_id),
@@ -151,8 +153,7 @@ async def async_main(url):
                                         "host": "kahoot.it",
                                         "content": {
                                             "type": "quiz",
-                                            "choice": rand.randint(0, q["quizQuestionAnswers"][q["questionIndex"]] - 1),
-                                            "questionIndex": q["questionIndex"],
+                                            "questionIndex": msg["questionIndex"],
                                             "meta": {"lag": 127}
                                         }
                                     },
@@ -160,11 +161,26 @@ async def async_main(url):
                                     "ext": {}
                                 }]
 
+                                ans = rand.randint(0, msg["quizQuestionAnswers"][msg["questionIndex"]] - 1)
+                                if msg["type"] == "multiple_select_quiz":
+                                    ans = [ans]
+
                                 # json dumps content and send
+                                req[0]["data"]["content"]["choice"] = ans
                                 req[0]["data"]["content"] = json.dumps(req[0]["data"]["content"])
                                 time.sleep(0.25)
                                 await json_send(ws, req)
-                                print(f"answered question {q['questionIndex'] + 1}")
+                                print(f"Q{msg['questionIndex'] + 1}: {ans}")
+
+                        elif "correctCount" in msg.keys():
+                            # quiz finished
+                            print(f"""
+\nCompleted Quiz
+Player: {name}
+ - Rank: {msg['rank']}
+ - Score: {msg['totalScore']}
+ - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}""")
+                            run = False
 
                     else:
                         if "playerV2" in rsp["data"]["content"]:
@@ -187,7 +203,7 @@ async def async_main(url):
 
                         elif "quizTitle" in rsp["data"]["content"]:
                             questions_started = True  # quiz admin has started the quiz
-                            print("admin started quiz")
+                            print("Quiz commenced")
 
                 elif rsp["channel"] == "/meta/connect":
                     # acknowledge client is alive
@@ -238,15 +254,11 @@ questions_started = False
 
 
 async def json_send(ws, obj, ack=False):
-    if not ack:
-        print("SEND " + json.dumps(obj))
     await ws.send(json.dumps(obj))
 
 
 async def json_recv(ws):
-    rsp = await ws.recv()
-    print("RECV " + rsp)
-    return json.loads(rsp)
+    return json.loads(await ws.recv())
 
 
 if __name__ == "__main__":
