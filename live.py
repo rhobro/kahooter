@@ -6,12 +6,9 @@ import websockets as wss
 
 from challenge import *
 
-# os.environ["http_proxy"] = "http://localhost:9090"
-# os.environ["https_proxy"] = "http://localhost:9090"
-
-code = 2977276
-name = "namerator"
-device = rand_device()
+# args
+code = None
+name = None
 
 
 def decrypt_websock(js_key, sess_tok):
@@ -41,12 +38,29 @@ def decrypt_websock(js_key, sess_tok):
 
 
 def main():
-    # parser = ap.ArgumentParser()
-    # parser.add_argument("-id", "--id", help="ID of the quiz you are automating")
-    # parser.add_argument("-name", "--name", help="Character name to use with the quiz")
-    # args = parser.parse_args()
-    # code = args.code
-    # name = args.name
+    global code
+    global name
+
+    parser = ap.ArgumentParser()
+    parser.add_argument("-code", "--code", help="Code of the quiz you are automating")
+    parser.add_argument("-name", "--name",
+                        help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
+    args = parser.parse_args()
+    try:
+        code = args.code
+    except AttributeError:
+        print("No \"code\" attribute passed")
+    try:
+        name = args.name
+    except AttributeError:
+        print("No \"name\" attribute passed")
+
+    try:
+        if int(code) <= 0 and name == "":
+            sys.exit(0)
+    except ValueError:
+        print("Invalid args")
+        sys.exit(0)
 
     # request challenge
     c_rq = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}", verify=False)
@@ -56,7 +70,6 @@ def main():
     c = json.loads(c_rq.content)
 
     # get name
-    global name
     if c["namerator"] or name == "namerator":
         name = namerator()
     name = name.replace(" ", "")
@@ -66,16 +79,11 @@ def main():
     asio.get_event_loop().run_until_complete(async_main(websock_url))
 
 
-cli_id = None
-cid = None
-
-
 async def async_main(url):
-    global cli_id
-    global cid
-    global latest_id
-    global logged_in
-    global questions_started
+    device = rand_device()
+    logged_in = False
+    latest_id = 0
+    questions_started = False
 
     async with wss.connect(url) as ws:
         # handshake + connect
@@ -92,11 +100,7 @@ async def async_main(url):
                 },
                 "ext": {
                     "ack": True,
-                    "timesync": {
-                        "tc": t(),
-                        "l": 0,
-                        "o": 0
-                    }
+                    "timesync": {"tc": t(), "l": 0, "o": 0}
                 }
             }
         ])
@@ -111,11 +115,7 @@ async def async_main(url):
                 "clientId": cli_id,
                 "ext": {
                     "ack": 0,
-                    "timesync": {
-                        "tc": t(),
-                        "l": 100,
-                        "o": 2260
-                    }
+                    "timesync": {"tc": t(), "l": 100, "o": 2260}
                 }
             }
         ])
@@ -129,9 +129,7 @@ async def async_main(url):
                 if rsp["channel"] == "/service/controller":
                     if "data" in rsp.keys():
                         if rsp["data"]["type"] == "loginResponse":
-                            if "cid" in rsp["data"].keys():
-                                cid = rsp["data"]["cid"]
-                            else:
+                            if "cid" not in rsp["data"].keys():
                                 print(f"Invalid code {code}")
                                 sys.exit(0)
 
@@ -174,8 +172,18 @@ async def async_main(url):
 
                         elif "correctCount" in msg.keys():
                             # quiz finished
-                            print(f"""
-\nCompleted Quiz
+                            # disconnect
+                            await json_send(ws, [{
+                                "id": str(latest_id + 1),
+                                "channel": "/meta/disconnect",
+                                "clientId": cli_id,
+                                "ext": {
+                                    "timesync": {"tc": t(), "l": 127, "o": 2196}
+                                }
+                            }])
+
+                            # print summary
+                            print(f"""\n\nCompleted Quiz
 Player: {name}
  - Rank: {msg['rank']}
  - Score: {msg['totalScore']}
@@ -184,21 +192,19 @@ Player: {name}
 
                     else:
                         if "playerV2" in rsp["data"]["content"]:
-                            await json_send(ws, [
-                                {
-                                    "id": str(latest_id + 1),
-                                    "channel": "/service/controller",
-                                    "data": {
-                                        "id": rsp["data"]["id"] + 1,
-                                        "type": "message",
-                                        "gameid": code,
-                                        "host": "kahoot.it",
-                                        "content": ""
-                                    },
-                                    "clientId": cli_id,
-                                    "ext": {}
-                                }
-                            ])
+                            await json_send(ws, [{
+                                "id": str(latest_id + 1),
+                                "channel": "/service/controller",
+                                "data": {
+                                    "id": rsp["data"]["id"] + 1,
+                                    "type": "message",
+                                    "gameid": code,
+                                    "host": "kahoot.it",
+                                    "content": ""
+                                },
+                                "clientId": cli_id,
+                                "ext": {}
+                            }])
                             time.sleep(0.7)
 
                         elif "quizTitle" in rsp["data"]["content"]:
@@ -208,52 +214,39 @@ Player: {name}
                 elif rsp["channel"] == "/meta/connect":
                     # acknowledge client is alive
                     latest_id = int(rsp["id"]) + 1
-                    await json_send(ws, [
-                        {
-                            "id": str(latest_id),
-                            "channel": "/meta/connect",
-                            "connectionType": "websocket",
-                            "clientId": cli_id,
-                            "ext": {
-                                "ack": rsp["ext"]["ack"],
-                                "timesync": {
-                                    "tc": t(),
-                                    "l": 100,
-                                    "o": 2260
-                                }
-                            }
+                    await json_send(ws, [{
+                        "id": str(latest_id),
+                        "channel": "/meta/connect",
+                        "connectionType": "websocket",
+                        "clientId": cli_id,
+                        "ext": {
+                            "ack": rsp["ext"]["ack"],
+                            "timesync": {"tc": t(), "l": 100, "o": 2260}
                         }
-                    ], True)
+                    }])
 
             # start quiz logic
             if not logged_in:
                 time.sleep(1)
                 # join with player name
-                await json_send(ws, [
-                    {
-                        "id": str(latest_id + 1),
-                        "channel": "/service/controller",
-                        "data": {
-                            "type": "login",
-                            "gameid": str(code),
-                            "host": "kahoot.it",
-                            "name": name,
-                            "content": json.dumps(device)
-                        },
-                        "clientId": cli_id,
-                        "ext": {}
-                    }
-                ])
+                await json_send(ws, [{
+                    "id": str(latest_id + 1),
+                    "channel": "/service/controller",
+                    "data": {
+                        "type": "login",
+                        "gameid": str(code),
+                        "host": "kahoot.it",
+                        "name": name,
+                        "content": json.dumps(device)
+                    },
+                    "clientId": cli_id,
+                    "ext": {}
+                }])
                 time.sleep(1)
                 logged_in = True
 
 
-logged_in = False
-latest_id = 0
-questions_started = False
-
-
-async def json_send(ws, obj, ack=False):
+async def json_send(ws, obj):
     await ws.send(json.dumps(obj))
 
 
