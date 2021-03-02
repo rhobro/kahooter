@@ -7,7 +7,7 @@ import websockets as wss
 from challenge import *
 
 # args
-code = None
+pin = None
 name = None
 
 
@@ -34,38 +34,17 @@ def decrypt_websock(js_key, sess_tok):
     for i, c in enumerate(b64_sess_tok):
         cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
 
-    return f"wss://kahoot.it/cometd/{code}/{cometd_path}"
+    return f"wss://kahoot.it/cometd/{pin}/{cometd_path}"
 
 
 def main():
-    global code
+    global pin
     global name
 
-    parser = ap.ArgumentParser()
-    parser.add_argument("-code", "--code", help="Code of the quiz you are automating")
-    parser.add_argument("-name", "--name",
-                        help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
-    args = parser.parse_args()
-    try:
-        code = args.code
-    except AttributeError:
-        print("No \"code\" attribute passed")
-    try:
-        name = args.name
-    except AttributeError:
-        print("No \"name\" attribute passed")
-
-    try:
-        if int(code) <= 0 and name == "":
-            sys.exit(0)
-    except ValueError:
-        print("Invalid args")
-        sys.exit(0)
-
     # request challenge
-    c_rq = sess.get(f"https://kahoot.it/reserve/session/{code}/?{t()}")
+    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}")
     if "x-kahoot-session-token" not in c_rq.headers.keys():
-        print(f"Invalid code {code}")
+        print(f"Invalid code {pin}")
         sys.exit(0)
     c = json.loads(c_rq.content)
 
@@ -130,7 +109,7 @@ async def async_main(url):
                     if "data" in rsp.keys():
                         if rsp["data"]["type"] == "loginResponse":
                             if "cid" not in rsp["data"].keys():
-                                print(f"Invalid code {code}")
+                                print(f"Invalid code {pin}")
                                 sys.exit(0)
 
                 elif rsp["channel"] == "/service/player":
@@ -147,7 +126,7 @@ async def async_main(url):
                                     "data": {
                                         "id": 45,
                                         "type": "message",
-                                        "gameid": str(code),
+                                        "gameid": str(pin),
                                         "host": "kahoot.it",
                                         "content": {
                                             "type": "quiz",
@@ -198,7 +177,7 @@ Player: {name}
                                 "data": {
                                     "id": rsp["data"]["id"] + 1,
                                     "type": "message",
-                                    "gameid": code,
+                                    "gameid": pin,
                                     "host": "kahoot.it",
                                     "content": ""
                                 },
@@ -234,7 +213,7 @@ Player: {name}
                     "channel": "/service/controller",
                     "data": {
                         "type": "login",
-                        "gameid": str(code),
+                        "gameid": str(pin),
                         "host": "kahoot.it",
                         "name": name,
                         "content": json.dumps(device)
@@ -254,5 +233,40 @@ async def json_recv(ws):
     return json.loads(await ws.recv())
 
 
-if __name__ == "__main__":
+def arg_start():
+    parser = ap.ArgumentParser()
+    parser.add_argument("-pin", "--pin", help="Pin of the quiz you are automating")
+    parser.add_argument("-name", "--name",
+                        help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
+    args = parser.parse_args()
+    try:
+        _ = args.pin
+    except AttributeError:
+        print("No \"code\" attribute passed")
+    try:
+        _ = args.name
+    except AttributeError:
+        print("No \"name\" attribute passed")
+
+    try:
+        if int(args.pin) <= 0 and args.name == "":
+            sys.exit(0)
+    except ValueError:
+        print("Invalid args")
+        sys.exit(0)
+
+    custom_start(args.pin, args.name)
+
+
+def custom_start(c, n):
+    global pin
+    global name
+
+    pin = c
+    name = n
+
     main()
+
+
+if __name__ == "__main__":
+    arg_start()

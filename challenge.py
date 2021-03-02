@@ -34,16 +34,10 @@ def t():
     return int(time.time() * 1000)
 
 
-def main():
-    parser = ap.ArgumentParser()
-    parser.add_argument("-id", "--id", help="ID of the quiz you are automating")
-    parser.add_argument("-name", "--name", help="Character name to use with the quiz")
-    args = parser.parse_args()
-    name = args.name
+def main(c_id, name):
     ua = rand_ua()
-
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/rest/challenges/{args.id}?includeKahoot=true")
+    challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true")
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
@@ -59,7 +53,7 @@ def main():
     print("Using name: " + name)
 
     # join challenge
-    cid = sess.post(f"https://kahoot.it/rest/challenges/{args.id}/join/?nickname={name}")
+    cid = sess.post(f"https://kahoot.it/rest/challenges/{c_id}/join/?nickname={name}")
     cid = json.loads(cid.content)
     cid = cid["playerCid"]
 
@@ -118,8 +112,16 @@ def main():
         print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
 
         # post answer
-        sess.post(f"https://kahoot.it/rest/challenges/{args.id}/answers", json=ans_sub)
+        sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub)
+
+
+def arg_start():
+    parser = ap.ArgumentParser()
+    parser.add_argument("-id", "--id", help="ID of the quiz you are automating")
+    parser.add_argument("-name", "--name", help="Character name to use with the quiz")
+    args = parser.parse_args()
+    main(args.id, args.name)
 
 
 if __name__ == "__main__":
-    main()
+    arg_start()
