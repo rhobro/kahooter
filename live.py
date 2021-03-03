@@ -26,12 +26,14 @@ def live_main(pin, name):
     asio.get_event_loop().run_until_complete(live_async(ws_url, pin, name))
 
 
+ans = []
+
+
 async def live_async(url, pin, name):
     device = rand_device()
     logged_in = False
     latest_id = 0
     questions_started = False
-    ans = []
 
     async with wss.connect(url) as ws:
         # handshake + connect
@@ -141,7 +143,12 @@ async def live_async(url, pin, name):
                     else:
                         # get answers
                         if "quizTitle" in msg.keys():
-                            ans = find_answers()
+                            global ans
+                            ans = find_answers(msg)
+
+                            if len(ans) == 0:
+                                print("Unable to find quiz answers, could be private")
+                                sys.exit(0)
 
                         if "playerV2" in rsp["data"]["content"]:
                             await json_send(ws, [{
@@ -226,13 +233,17 @@ def decrypt_websock(js_key, sess_tok) -> str:
 
 def find_answers(details) -> list:
     cursor = 0
-    ans = []
+    answers = []
 
     while True:
         quizzes = sess.get(
             f"https://create.kahoot.it/rest/kahoots/?query={quote(details['quizTitle'])}&limit=100&cursor={cursor}",
             verify=False)
         quizzes = json.loads(quizzes.content)
+
+        # no results
+        if len(quizzes["entities"]) == 0:
+            return []
 
         # find quiz
         for e in quizzes["entities"]:
@@ -244,25 +255,25 @@ def find_answers(details) -> list:
 
                 for q in quiz["kahoot"]["questions"]:
                     choices = []
-                    for j, c in enumerate(q["choices"]):
+                    for i, c in enumerate(q["choices"]):
                         if c["correct"]:
-                            choices.append(c["answer"])
+                            choices.append(i)
 
                     if len(choices) == 1:
                         # only 1 answer
-                        ans.append(choices[0])
+                        answers.append(choices[0])
                     else:
                         # multiple answers
-                        ans.append(choices)
+                        answers.append(choices)
 
                 break
 
-        if len(ans) != 0:
+        if len(answers) != 0:
             break
 
         cursor += len(quizzes["entities"])
 
-    return ans
+    return answers
 
 
 async def json_send(ws, obj):
