@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -110,7 +111,7 @@
       <workItem from="1614630204361" duration="3740000" />
       <workItem from="1614672835067" duration="3394000" />
       <workItem from="1614693170537" duration="710000" />
-      <workItem from="1614760540695" duration="14945000" />
+      <workItem from="1614760540695" duration="15645000" />
     </task>
     <task id="LOCAL-00001" summary="decrypted cometd">
       <created>1613598867835</created>
@@ -217,7 +218,14 @@
       <option name="project" value="LOCAL" />
       <updated>1614784733612</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="tested find answers">
+      <created>1614791033635</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1614791033635</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -259,7 +267,8 @@
     <MESSAGE value="Done. initial tests seem to be working" />
     <MESSAGE value="del planning" />
     <MESSAGE value="default arg values to prevent errors. period = delay + .25" />
-    <option name="LAST_COMMIT_MESSAGE" value="default arg values to prevent errors. period = delay + .25" />
+    <MESSAGE value="tested find answers" />
+    <option name="LAST_COMMIT_MESSAGE" value="tested find answers" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
