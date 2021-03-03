@@ -252,8 +252,9 @@ def find_answers(details) -> list:
 
         # find quiz
         for e in quizzes["entities"]:
-            if e["card"]["type"] == details["quizType"] and e["card"]["title"] == details["quizTitle"] and e["card"][
-                "number_of_questions"] == len(details["quizQuestionAnswers"]):
+            if e["card"]["type"] == details["quizType"] and \
+                    e["card"]["title"] == details["quizTitle"] and \
+                    e["card"]["number_of_questions"] == len(details["quizQuestionAnswers"]):
                 # found it, request answers
                 quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true")
                 quiz = json.loads(quiz.content)
