@@ -2,8 +2,8 @@
 
 A Python 3 bot built to provide superhuman performance on Kahoot quizzes. There are 2 modules:
 
-- `live.py` for real-time quizzes
-- `challenge.py` for in-your-own-time quizzes
+- `kahooter.live` for real-time quizzes
+- `kahooter.challenge` for in-your-own-time quizzes
 
 ### Usage
 
