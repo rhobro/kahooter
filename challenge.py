@@ -1,7 +1,6 @@
 import argparse as ap
 import json
 import subprocess as sp
-import sys
 import time
 
 import requests as rq
@@ -16,7 +15,7 @@ def challenge_main(c_id, name):
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
-        sys.exit(0)
+        return
 
     # get name
     if challenge["game_options"]["namerator"] or name == "namerator":

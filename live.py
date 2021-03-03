@@ -12,7 +12,7 @@ def live_main(pin, name):
     c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}", verify=False)
     if "x-kahoot-session-token" not in c_rq.headers.keys():
         print(f"Invalid code {pin}")
-        sys.exit(0)
+        return
     c = json.loads(c_rq.content)
 
     # get name
@@ -22,7 +22,7 @@ def live_main(pin, name):
     print("Using name: " + name)
 
     ws_url = f"wss://kahoot.it/cometd/{pin}/{decrypt_websock(c['challenge'], c_rq.headers['x-kahoot-session-token'])}"
-    asio.get_event_loop().run_until_complete(live_async(ws_url, pin, name))
+    asio.new_event_loop().run_until_complete(live_async(ws_url, pin, name))
 
 
 ans = []
@@ -81,7 +81,7 @@ async def live_async(url, pin, name):
                         if rsp["data"]["type"] == "loginResponse":
                             if "cid" not in rsp["data"].keys():
                                 print(f"Invalid code {pin}")
-                                sys.exit(0)
+                                return
 
                 elif rsp["channel"] == "/service/player":
                     msg = json.loads(rsp["data"]["content"])
@@ -99,7 +99,7 @@ async def live_async(url, pin, name):
                                 elif type(ans[msg["questionIndex"]]) == list:
                                     # multiple answers
                                     post_ans = [a["idx"] for a in ans[msg["questionIndex"]]]
-                                    display_ans = ", ".join([a["answer"] for a in ans[msg["questionIndex"]]])
+                                    display_ans = " | ".join([a["answer"] for a in ans[msg["questionIndex"]]])
 
                                 req = [{
                                     "id": str(latest_id),
@@ -110,7 +110,7 @@ async def live_async(url, pin, name):
                                         "gameid": str(pin),
                                         "host": "kahoot.it",
                                         "content": {
-                                            "type": "quiz",
+                                            "type": msg["gameBlockType"],
                                             "choice": post_ans,
                                             "questionIndex": msg["questionIndex"],
                                             "meta": {"lag": 127}
@@ -140,10 +140,10 @@ async def live_async(url, pin, name):
 
                             # print summary
                             print(f"""\n\nCompleted Quiz
-    Player: {name}
-     - Rank: {msg['rank']}
-     - Score: {msg['totalScore']}
-     - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}""")
+Player: {name}
+ - Rank: {msg['rank']}
+ - Score: {msg['totalScore']}
+ - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}""")
                             run = False
 
                     else:
@@ -153,7 +153,7 @@ async def live_async(url, pin, name):
 
                             if len(ans) == 0:
                                 print("Unable to find quiz answers, could be private")
-                                sys.exit(0)
+                                return
 
                         if "playerV2" in rsp["data"]["content"]:
                             await json_send(ws, [{
@@ -310,10 +310,10 @@ if __name__ == "__main__":
 
         try:
             if int(args.pin) <= 0 and args.name == "":
-                sys.exit(0)
+                return
         except ValueError:
             print("Invalid args")
-            sys.exit(0)
+            return
 
         live_main(args.pin, args.name)
 
