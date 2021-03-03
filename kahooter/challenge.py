@@ -8,7 +8,7 @@ import requests as rq
 sess = rq.session()
 
 
-def challenge_main(c_id, name):
+def run(c_id, name):
     ua = rand_ua()
     # request challenge
     challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true", verify=False)
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         parser.add_argument("-id", "--id", help="ID of the quiz you are automating")
         parser.add_argument("-name", "--name", help="Character name to use with the quiz")
         args = parser.parse_args()
-        challenge_main(args.id, args.name)
+        run(args.id, args.name)
 
 
     arg_start()

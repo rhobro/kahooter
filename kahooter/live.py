@@ -1,13 +1,16 @@
+import argparse as ap
 import asyncio as asio
 import base64 as b64
+import json
+import time
 from urllib.parse import quote
 
 import websockets as wss
 
-from challenge import *
+from challenge import sess, namerator, rand_device, t
 
 
-def live_main(pin, name, delay=.0):
+def run(pin, name, delay=.0):
     # request challenge
     c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}", verify=False)
     if "x-kahoot-session-token" not in c_rq.headers.keys():
@@ -71,8 +74,8 @@ async def live_async(url, pin, name, delay):
         ])
 
         # start dance with router
-        run = True
-        while run:
+        dance = True
+        while dance:
             rsp = await json_recv(ws)
 
             for rsp in rsp:
@@ -144,7 +147,7 @@ Player: {name}
  - Rank: {msg['rank']}
  - Score: {msg['totalScore']}
  - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}""")
-                            run = False
+                            dance = False
 
                     else:
                         # get answers
@@ -306,7 +309,7 @@ if __name__ == "__main__":
         except AttributeError:
             print("No \"code\" attribute passed")
 
-        live_main(args.pin, args.name, float(args.ans_delay))
+        run(args.pin, args.name, float(args.ans_delay))
 
 
     arg_start()

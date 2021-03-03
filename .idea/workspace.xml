@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="README.md v1">
+      <change afterPath="$PROJECT_DIR$/kahooter/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/challenge.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/challenge.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/live.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/live.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/period_tester.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,6 +60,12 @@
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/test" />
+      <recent name="$PROJECT_DIR$/kahooter" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="live" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="kahooter" />
@@ -70,7 +80,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/live.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/kahooter/live.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -111,7 +121,7 @@
       <workItem from="1614630204361" duration="3740000" />
       <workItem from="1614672835067" duration="3394000" />
       <workItem from="1614693170537" duration="710000" />
-      <workItem from="1614760540695" duration="15645000" />
+      <workItem from="1614760540695" duration="16454000" />
     </task>
     <task id="LOCAL-00001" summary="decrypted cometd">
       <created>1613598867835</created>
@@ -268,7 +278,8 @@
     <MESSAGE value="del planning" />
     <MESSAGE value="default arg values to prevent errors. period = delay + .25" />
     <MESSAGE value="tested find answers" />
-    <option name="LAST_COMMIT_MESSAGE" value="tested find answers" />
+    <MESSAGE value="README.md v1" />
+    <option name="LAST_COMMIT_MESSAGE" value="README.md v1" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
