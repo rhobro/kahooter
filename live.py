@@ -7,7 +7,7 @@ import websockets as wss
 from challenge import *
 
 
-def live_main(pin, name):
+def live_main(pin, name, delay=.0):
     # request challenge
     c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}", verify=False)
     if "x-kahoot-session-token" not in c_rq.headers.keys():
@@ -22,13 +22,13 @@ def live_main(pin, name):
     print("Using name: " + name)
 
     ws_url = f"wss://kahoot.it/cometd/{pin}/{decrypt_websock(c['challenge'], c_rq.headers['x-kahoot-session-token'])}"
-    asio.new_event_loop().run_until_complete(live_async(ws_url, pin, name))
+    asio.new_event_loop().run_until_complete(live_async(ws_url, pin, name, delay))
 
 
 ans = []
 
 
-async def live_async(url, pin, name):
+async def live_async(url, pin, name, delay):
     device = rand_device()
     logged_in = False
     latest_id = 0
@@ -122,7 +122,7 @@ async def live_async(url, pin, name):
 
                                 # json dumps content and send
                                 req[0]["data"]["content"] = json.dumps(req[0]["data"]["content"])
-                                time.sleep(0.25)
+                                time.sleep(.25 + delay)
                                 await json_send(ws, req)
                                 print(f"Q{msg['questionIndex'] + 1}: {display_ans}")
 
@@ -295,27 +295,17 @@ async def json_recv(ws):
 if __name__ == "__main__":
     def arg_start():
         parser = ap.ArgumentParser()
-        parser.add_argument("-pin", "--pin", help="Pin of the quiz you are automating")
-        parser.add_argument("-name", "--name",
+        parser.add_argument("-p", "--pin", help="Pin of the quiz you are automating")
+        parser.add_argument("-n", "--name", default="namerator",
                             help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
+        parser.add_argument("-d", "--ans_delay", default="0", help="(optional) Delay before answering question")
         args = parser.parse_args()
         try:
             _ = args.pin
         except AttributeError:
             print("No \"code\" attribute passed")
-        try:
-            _ = args.name
-        except AttributeError:
-            print("No \"name\" attribute passed")
 
-        try:
-            if int(args.pin) <= 0 and args.name == "":
-                return
-        except ValueError:
-            print("Invalid args")
-            return
-
-        live_main(args.pin, args.name)
+        live_main(args.pin, args.name, float(args.ans_delay))
 
 
     arg_start()

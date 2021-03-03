@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="working for mcq as well">
-      <change afterPath="$PROJECT_DIR$/period_tester.py" afterDir="false" />
+    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/challenge.py" beforeDir="false" afterPath="$PROJECT_DIR$/challenge.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/live.py" beforeDir="false" afterPath="$PROJECT_DIR$/live.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -113,7 +111,7 @@
       <workItem from="1614630204361" duration="3740000" />
       <workItem from="1614672835067" duration="3394000" />
       <workItem from="1614693170537" duration="710000" />
-      <workItem from="1614760540695" duration="11146000" />
+      <workItem from="1614760540695" duration="12798000" />
     </task>
     <task id="LOCAL-00001" summary="decrypted cometd">
       <created>1613598867835</created>
@@ -199,7 +197,21 @@
       <option name="project" value="LOCAL" />
       <updated>1614773483129</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Done. initial tests seem to be working">
+      <created>1614783110240</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1614783110240</updated>
+    </task>
+    <task id="LOCAL-00014" summary="del planning">
+      <created>1614783231265</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1614783231265</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -238,7 +250,9 @@
     <MESSAGE value="converted ans to idxes" />
     <MESSAGE value="working for normal quiz questions" />
     <MESSAGE value="working for mcq as well" />
-    <option name="LAST_COMMIT_MESSAGE" value="working for mcq as well" />
+    <MESSAGE value="Done. initial tests seem to be working" />
+    <MESSAGE value="del planning" />
+    <option name="LAST_COMMIT_MESSAGE" value="del planning" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
