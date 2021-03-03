@@ -1,6 +1,5 @@
 import asyncio as asio
 import base64 as b64
-import random as rand
 from urllib.parse import quote
 
 import websockets as wss
@@ -34,6 +33,7 @@ async def live_async(url, pin, name):
     logged_in = False
     latest_id = 0
     questions_started = False
+    global ans
 
     async with wss.connect(url) as ws:
         # handshake + connect
@@ -91,6 +91,16 @@ async def live_async(url, pin, name):
                             if msg["timeLeft"] > 0:
                                 # answer
                                 latest_id += 1
+                                if type(ans[msg["questionIndex"]]) == dict:
+                                    # single answer
+                                    post_ans = ans[msg["questionIndex"]]["idx"]
+                                    display_ans = ans[msg["questionIndex"]]["answer"]
+
+                                elif type(ans[msg["questionIndex"]]) == list:
+                                    # multiple answers
+                                    post_ans = [a["idx"] for a in ans[msg["questionIndex"]]]
+                                    display_ans = ", ".join([a["answer"] for a in ans[msg["questionIndex"]]])
+
                                 req = [{
                                     "id": str(latest_id),
                                     "channel": "/service/controller",
@@ -101,6 +111,7 @@ async def live_async(url, pin, name):
                                         "host": "kahoot.it",
                                         "content": {
                                             "type": "quiz",
+                                            "choice": post_ans,
                                             "questionIndex": msg["questionIndex"],
                                             "meta": {"lag": 127}
                                         }
@@ -109,16 +120,11 @@ async def live_async(url, pin, name):
                                     "ext": {}
                                 }]
 
-                                ans = rand.randint(0, msg["quizQuestionAnswers"][msg["questionIndex"]] - 1)
-                                if msg["type"] == "multiple_select_quiz":
-                                    ans = [ans]
-
                                 # json dumps content and send
-                                req[0]["data"]["content"]["choice"] = ans
                                 req[0]["data"]["content"] = json.dumps(req[0]["data"]["content"])
                                 time.sleep(0.25)
                                 await json_send(ws, req)
-                                print(f"Q{msg['questionIndex'] + 1}: {ans}")
+                                print(f"Q{msg['questionIndex'] + 1}: {display_ans}")
 
                         elif "correctCount" in msg.keys():
                             # quiz finished
@@ -143,7 +149,6 @@ async def live_async(url, pin, name):
                     else:
                         # get answers
                         if "quizTitle" in msg.keys():
-                            global ans
                             ans = find_answers(msg)
 
                             if len(ans) == 0:
@@ -257,7 +262,10 @@ def find_answers(details) -> list:
                     choices = []
                     for i, c in enumerate(q["choices"]):
                         if c["correct"]:
-                            choices.append(i)
+                            choices.append({
+                                "idx": i,
+                                "answer": c["answer"]
+                            })
 
                     if len(choices) == 1:
                         # only 1 answer
