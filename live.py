@@ -1,48 +1,16 @@
 import asyncio as asio
 import base64 as b64
 import random as rand
+from urllib.parse import quote
 
 import websockets as wss
 
 from challenge import *
 
-# args
-pin = None
-name = None
 
-
-def decrypt_websock(js_key, sess_tok):
-    # decrypt cometd path
-
-    # extract message and offset
-    offset_equation = js_key[js_key.index("=") + 1:].strip()
-    offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
-    tmp_msg = js_key[js_key.index("'"):]
-    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
-    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
-
-    # reserve challenge to answer
-    msg = ""
-    for i, c in enumerate(tmp_msg):
-        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)
-
-    # base64 decode session token
-    b64_sess_tok = b64.decodebytes(bytes(sess_tok, "utf-8")).decode("utf-8")
-
-    # xor message and base64 session token
-    cometd_path = ""
-    for i, c in enumerate(b64_sess_tok):
-        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
-
-    return f"wss://kahoot.it/cometd/{pin}/{cometd_path}"
-
-
-def main():
-    global pin
-    global name
-
+def live_main(pin, name):
     # request challenge
-    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}")
+    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}", verify=False)
     if "x-kahoot-session-token" not in c_rq.headers.keys():
         print(f"Invalid code {pin}")
         sys.exit(0)
@@ -54,15 +22,16 @@ def main():
     name = name.replace(" ", "")
     print("Using name: " + name)
 
-    ws_url = decrypt_websock(c["challenge"], c_rq.headers["x-kahoot-session-token"])
-    asio.get_event_loop().run_until_complete(async_main(ws_url))
+    ws_url = f"wss://kahoot.it/cometd/{pin}/{decrypt_websock(c['challenge'], c_rq.headers['x-kahoot-session-token'])}"
+    asio.get_event_loop().run_until_complete(live_async(ws_url, pin, name))
 
 
-async def async_main(url):
+async def live_async(url, pin, name):
     device = rand_device()
     logged_in = False
     latest_id = 0
     questions_started = False
+    ans = []
 
     async with wss.connect(url) as ws:
         # handshake + connect
@@ -113,9 +82,9 @@ async def async_main(url):
                                 sys.exit(0)
 
                 elif rsp["channel"] == "/service/player":
-                    if questions_started:
-                        msg = json.loads(rsp["data"]["content"])
+                    msg = json.loads(rsp["data"]["content"])
 
+                    if questions_started:
                         if "timeLeft" in msg.keys() and "getReadyTimeRemaining" not in msg.keys():
                             if msg["timeLeft"] > 0:
                                 # answer
@@ -163,13 +132,17 @@ async def async_main(url):
 
                             # print summary
                             print(f"""\n\nCompleted Quiz
-Player: {name}
- - Rank: {msg['rank']}
- - Score: {msg['totalScore']}
- - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}""")
+    Player: {name}
+     - Rank: {msg['rank']}
+     - Score: {msg['totalScore']}
+     - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}""")
                             run = False
 
                     else:
+                        # get answers
+                        if "quizTitle" in msg.keys():
+                            ans = find_answers()
+
                         if "playerV2" in rsp["data"]["content"]:
                             await json_send(ws, [{
                                 "id": str(latest_id + 1),
@@ -225,6 +198,73 @@ Player: {name}
                 logged_in = True
 
 
+def decrypt_websock(js_key, sess_tok) -> str:
+    # decrypt cometd path
+
+    # extract message and offset
+    offset_equation = js_key[js_key.index("=") + 1:].strip()
+    offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
+    tmp_msg = js_key[js_key.index("'"):]
+    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
+    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
+
+    # reserve challenge to answer
+    msg = ""
+    for i, c in enumerate(tmp_msg):
+        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)
+
+    # base64 decode session token
+    b64_sess_tok = b64.decodebytes(bytes(sess_tok, "utf-8")).decode("utf-8")
+
+    # xor message and base64 session token
+    cometd_path = ""
+    for i, c in enumerate(b64_sess_tok):
+        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
+
+    return cometd_path
+
+
+def find_answers(details) -> list:
+    cursor = 0
+    ans = []
+
+    while True:
+        quizzes = sess.get(
+            f"https://create.kahoot.it/rest/kahoots/?query={quote(details['quizTitle'])}&limit=100&cursor={cursor}",
+            verify=False)
+        quizzes = json.loads(quizzes.content)
+
+        # find quiz
+        for e in quizzes["entities"]:
+            if e["card"]["type"] == details["quizType"] and e["card"]["title"] == details["quizTitle"] and e["card"][
+                "number_of_questions"] == len(details["quizQuestionAnswers"]):
+                # found it, request answers
+                quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true")
+                quiz = json.loads(quiz.content)
+
+                for q in quiz["kahoot"]["questions"]:
+                    choices = []
+                    for j, c in enumerate(q["choices"]):
+                        if c["correct"]:
+                            choices.append(c["answer"])
+
+                    if len(choices) == 1:
+                        # only 1 answer
+                        ans.append(choices[0])
+                    else:
+                        # multiple answers
+                        ans.append(choices)
+
+                break
+
+        if len(ans) != 0:
+            break
+
+        cursor += len(quizzes["entities"])
+
+    return ans
+
+
 async def json_send(ws, obj):
     await ws.send(json.dumps(obj))
 
@@ -233,40 +273,30 @@ async def json_recv(ws):
     return json.loads(await ws.recv())
 
 
-def arg_start():
-    parser = ap.ArgumentParser()
-    parser.add_argument("-pin", "--pin", help="Pin of the quiz you are automating")
-    parser.add_argument("-name", "--name",
-                        help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
-    args = parser.parse_args()
-    try:
-        _ = args.pin
-    except AttributeError:
-        print("No \"code\" attribute passed")
-    try:
-        _ = args.name
-    except AttributeError:
-        print("No \"name\" attribute passed")
-
-    try:
-        if int(args.pin) <= 0 and args.name == "":
-            sys.exit(0)
-    except ValueError:
-        print("Invalid args")
-        sys.exit(0)
-
-    custom_start(args.pin, args.name)
-
-
-def custom_start(c, n):
-    global pin
-    global name
-
-    pin = c
-    name = n
-
-    main()
-
-
 if __name__ == "__main__":
+    def arg_start():
+        parser = ap.ArgumentParser()
+        parser.add_argument("-pin", "--pin", help="Pin of the quiz you are automating")
+        parser.add_argument("-name", "--name",
+                            help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
+        args = parser.parse_args()
+        try:
+            _ = args.pin
+        except AttributeError:
+            print("No \"code\" attribute passed")
+        try:
+            _ = args.name
+        except AttributeError:
+            print("No \"name\" attribute passed")
+
+        try:
+            if int(args.pin) <= 0 and args.name == "":
+                sys.exit(0)
+        except ValueError:
+            print("Invalid args")
+            sys.exit(0)
+
+        live_main(args.pin, args.name)
+
+
     arg_start()
