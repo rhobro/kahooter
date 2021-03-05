@@ -1,18 +1,16 @@
 import argparse as ap
 import asyncio as asio
 import base64 as b64
-import json
-import time
 from urllib.parse import quote
 
 import websockets as wss
 
-from challenge import sess, namerator, rand_device, t
+from kahooter import *
 
 
 def run(pin, name, delay=.0):
     # request challenge
-    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}")
+    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}", verify=False)
     if "x-kahoot-session-token" not in c_rq.headers.keys():
         print(f"Invalid code {pin}")
         return
@@ -259,7 +257,8 @@ def find_answers(details) -> list:
                     e["card"]["title"] == details["quizTitle"] and \
                     e["card"]["number_of_questions"] == len(details["quizQuestionAnswers"]):
                 # found it, request answers
-                quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true")
+                quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true",
+                                verify=False)
                 quiz = json.loads(quiz.content)
 
                 for q in quiz["kahoot"]["questions"]:
@@ -286,14 +285,6 @@ def find_answers(details) -> list:
         cursor += len(quizzes["entities"])
 
     return answers
-
-
-async def json_send(ws, obj):
-    await ws.send(json.dumps(obj))
-
-
-async def json_recv(ws):
-    return json.loads(await ws.recv())
 
 
 if __name__ == "__main__":

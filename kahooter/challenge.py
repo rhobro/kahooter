@@ -1,17 +1,12 @@
 import argparse as ap
-import json
-import subprocess as sp
-import time
 
-import requests as rq
-
-sess = rq.session()
+from kahooter import *
 
 
 def run(c_id, name):
     ua = rand_ua()
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true")
+    challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true", verify=False)
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
@@ -27,7 +22,7 @@ def run(c_id, name):
     print("Using name: " + name)
 
     # join challenge
-    cid = sess.post(f"https://kahoot.it/rest/challenges/{c_id}/join/?nickname={name}")
+    cid = sess.post(f"https://kahoot.it/rest/challenges/{c_id}/join/?nickname={name}", verify=False)
     cid = json.loads(cid.content)
     cid = cid["playerCid"]
 
@@ -68,50 +63,49 @@ def run(c_id, name):
         ans_sub["question"]["lag"] = 0
         ans_sub["question"]["answers"] = []
 
-        for j, c in enumerate(q["choices"]):
-            if c["correct"]:
-                ans_sub["question"]["answers"].append({
-                    "receivedTime": t(),
-                    "reactionTime": 0,
-                    "playerId": name,
-                    "playerCid": cid,
-                    "choiceIndex": j,
-                    "text": c["answer"],
-                    "isCorrect": c["correct"],
-                    "points": 1000 * q["pointsMultiplier"],
-                    "bonusPoints": {
-                        "answerStreakBonus": 500 * q["pointsMultiplier"]
-                    }
-                })
+        if q["type"] == "jumble":
+            ans_sub["question"]["answers"].append({
+                "receivedTime": t(),
+                "reactionTime": 0,
+                "playerId": name,
+                "playerCid": cid,
+                "selectedJumbleOrder": list(range(len(q["choices"]))),
+                "choiceIndex": -1,
+                "text": "|".join([c["answer"] for c in q["choices"]]),
+                "isCorrect": True,
+                "points": 0,
+                "bonusPoints": {
+                    "answerStreakBonus": 0
+                }
+            })
+            if q["points"]:
+                ans_sub["question"]["answers"][-1]["points"] = 1000 * q["pointsMultiplier"]
+                ans_sub["question"]["answers"][-1]["bonusPoints"]["answerStreakBonus"] = 500 * q["pointsMultiplier"]
+
+        else:
+            for j, c in enumerate(q["choices"]):
+                if c["correct"]:
+                    ans_sub["question"]["answers"].append({
+                        "receivedTime": t(),
+                        "reactionTime": 0,
+                        "playerId": name,
+                        "playerCid": cid,
+                        "choiceIndex": j,
+                        "text": c["answer"],
+                        "isCorrect": c["correct"],
+                        "points": 0,
+                        "bonusPoints": {
+                            "answerStreakBonus": 0
+                        }
+                    })
+                    if q["points"]:
+                        ans_sub["question"]["answers"][-1]["points"] = 1000 * q["pointsMultiplier"]
+                        ans_sub["question"]["answers"][-1]["bonusPoints"]["answerStreakBonus"] = 500 * q[
+                            "pointsMultiplier"]
+
         print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
-
         # post answer
-        sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub)
-
-
-def rand_ua() -> str:
-    child = sp.Popen("./go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
-    return child.stdout.read().decode()
-
-
-def rand_device() -> dict:
-    return {
-        "userAgent": rand_ua(),
-        "screen": {
-            "width": 1980,
-            "height": 1080
-        }
-    }
-
-
-def namerator() -> str:
-    name = sess.get("https://apis.kahoot.it/namerator")
-    name = json.loads(name.content)
-    return name["name"]
-
-
-def t() -> int:
-    return int(time.time() * 1000)
+        sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub, verify=False)
 
 
 if __name__ == "__main__":
