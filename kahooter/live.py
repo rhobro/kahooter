@@ -10,7 +10,7 @@ from kahooter import *
 
 def run(pin, name, delay=.0):
     # request challenge
-    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}", verify=False)
+    c_rq = sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}")
     if "x-kahoot-session-token" not in c_rq.headers.keys():
         print(f"Invalid code {pin}")
         return

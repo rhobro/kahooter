@@ -1,8 +1,12 @@
 import json
+import os
 import subprocess as sp
 import time
 
 import requests as rq
+
+# recompile randua binary based on OS
+os.system("go build -i -o go/bin go/randua.go")
 
 # session to use for requests
 sess = rq.session()
@@ -27,7 +31,7 @@ def rand_device() -> dict:
 
 
 def namerator() -> str:
-    name = sess.get("https://apis.kahoot.it/namerator", verify=False)
+    name = sess.get("https://apis.kahoot.it/namerator")
     name = json.loads(name.content)
     return name["name"]
 

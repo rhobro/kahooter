@@ -6,7 +6,7 @@ from __init__ import *
 def run(c_id, name):
     ua = rand_ua()
     # request challenge
-    challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true", verify=False)
+    challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true")
     challenge = json.loads(challenge.content)
     if "kahoot" not in challenge.keys():
         print("Challenge ended")
@@ -22,7 +22,7 @@ def run(c_id, name):
     print("Using name: " + name)
 
     # join challenge
-    cid = sess.post(f"https://kahoot.it/rest/challenges/{c_id}/join/?nickname={name}", verify=False)
+    cid = sess.post(f"https://kahoot.it/rest/challenges/{c_id}/join/?nickname={name}")
     cid = json.loads(cid.content)
     cid = cid["playerCid"]
 
@@ -107,7 +107,7 @@ def run(c_id, name):
 
         print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
         # post answer
-        sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub, verify=False)
+        sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub)
 
 
 if __name__ == "__main__":
