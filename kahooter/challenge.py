@@ -1,6 +1,6 @@
 import argparse as ap
 
-from kahooter import *
+from __init__ import *
 
 
 def run(c_id, name):
