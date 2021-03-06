@@ -62,7 +62,6 @@ def run(c_id, name):
         ans_sub["question"]["format"] = ans_sub["question"].pop("questionFormat")
         ans_sub["question"]["lag"] = 0
         ans_sub["question"]["answers"] = []
-
         if q["type"] == "jumble":
             ans_sub["question"]["answers"].append({
                 "receivedTime": t(),
@@ -81,6 +80,9 @@ def run(c_id, name):
             if q["points"]:
                 ans_sub["question"]["answers"][-1]["points"] = 1000 * q["pointsMultiplier"]
                 ans_sub["question"]["answers"][-1]["bonusPoints"]["answerStreakBonus"] = 500 * q["pointsMultiplier"]
+
+        elif q["type"] == "survey":
+            continue
 
         else:
             for j, c in enumerate(q["choices"]):

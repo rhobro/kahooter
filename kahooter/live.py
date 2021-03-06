@@ -290,8 +290,8 @@ def find_answers(details) -> list:
 if __name__ == "__main__":
     def arg_start():
         parser = ap.ArgumentParser()
-        parser.add_argument("-p", "--pin", help="Pin of the quiz you are automating")
-        parser.add_argument("-n", "--name", default="namerator",
+        parser.add_argument("-pin", "--pin", help="Pin of the quiz you are automating")
+        parser.add_argument("-name", "--name", default="namerator",
                             help="Character name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
         parser.add_argument("-d", "--ans_delay", default="0", help="(optional) Delay before answering question")
         args = parser.parse_args()
