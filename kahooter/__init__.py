@@ -16,6 +16,7 @@ sess = rq.session()
 
 
 def rand_ua() -> str:
+    return "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15"
     child = sp.Popen("./go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
     return child.stdout.read().decode()
 

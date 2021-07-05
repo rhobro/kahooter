@@ -28,6 +28,14 @@ def run(c_id, name):
 
     # answer questions
     for i, q in enumerate(challenge["kahoot"]["questions"]):
+        # is answerable?
+        try:
+            if q["type"] == "content":
+                raise Exception()
+        except:
+            print("Passing content question")
+            continue
+
         ans_sub = {
             "quizId": challenge["quizId"],
             "quizTitle": challenge["kahoot"]["title"],
@@ -93,19 +101,22 @@ def run(c_id, name):
                         "playerId": name,
                         "playerCid": cid,
                         "choiceIndex": j,
-                        "text": c["answer"],
                         "isCorrect": c["correct"],
                         "points": 0,
                         "bonusPoints": {
                             "answerStreakBonus": 0
                         }
                     })
-                    if q["points"]:
-                        ans_sub["question"]["answers"][-1]["points"] = 1000 * q["pointsMultiplier"]
-                        ans_sub["question"]["answers"][-1]["bonusPoints"]["answerStreakBonus"] = 500 * q[
-                            "pointsMultiplier"]
+                    if "answer" in c.keys():
+                        ans_sub["question"]["answers"][-1]["text"] = c["answer"]
+                    
+                    if "pointsMultiplier" in q.keys():
+                        if q["pointsMultiplier"]:
+                            ans_sub["question"]["answers"][-1]["points"] = 1000 * q["pointsMultiplier"]
+                            ans_sub["question"]["answers"][-1]["bonusPoints"]["answerStreakBonus"] = 500 * q[
+                                "pointsMultiplier"]
 
-        print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"]]))
+        print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"] and "answer" in c.keys()]))
         # post answer
         sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub)
 
