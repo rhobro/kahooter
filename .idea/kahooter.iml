@@ -5,7 +5,7 @@
       <excludeFolder url="file://$MODULE_DIR$/planning" />
       <excludeFolder url="file://$MODULE_DIR$/android" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="conda (base)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
