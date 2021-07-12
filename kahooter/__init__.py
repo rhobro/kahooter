@@ -21,10 +21,12 @@ def rand_ua() -> str:
 # generate random device config
 def rand_device() -> dict:
     return {
-        "userAgent": rand_ua(),
-        "screen": {
-            "width": 1980,
-            "height": 1080
+        "device": {
+            "userAgent": rand_ua(),
+            "screen": {
+                "width": 1980,
+                "height": 1080
+            }
         }
     }
 

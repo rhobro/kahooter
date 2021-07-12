@@ -8,7 +8,7 @@ def run(c_id, name):
     # request challenge
     challenge = sess.get(f"https://kahoot.it/rest/challenges/{c_id}?includeKahoot=true")
     challenge = json.loads(challenge.content)
-    if "kahoot" not in challenge.keys():
+    if "kahoot" not in challenge:
         print("Challenge ended")
         return
 
@@ -107,16 +107,16 @@ def run(c_id, name):
                             "answerStreakBonus": 0
                         }
                     })
-                    if "answer" in c.keys():
+                    if "answer" in c:
                         ans_sub["question"]["answers"][-1]["text"] = c["answer"]
-                    
-                    if "pointsMultiplier" in q.keys():
+
+                    if "pointsMultiplier" in q:
                         if q["pointsMultiplier"]:
                             ans_sub["question"]["answers"][-1]["points"] = 1000 * q["pointsMultiplier"]
                             ans_sub["question"]["answers"][-1]["bonusPoints"]["answerStreakBonus"] = 500 * q[
                                 "pointsMultiplier"]
 
-        print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"] and "answer" in c.keys()]))
+        print(f"Q{i + 1}: " + ", ".join([c["answer"] for c in q["choices"] if c["correct"] and "answer" in c]))
         # post answer
         sess.post(f"https://kahoot.it/rest/challenges/{c_id}/answers", json=ans_sub)
 

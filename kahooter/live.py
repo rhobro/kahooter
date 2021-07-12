@@ -3,6 +3,8 @@ import asyncio as asio
 import base64 as b64
 from urllib.parse import quote
 
+import aiocometd as comet
+
 from __init__ import *
 
 
@@ -18,13 +20,16 @@ class Kahoot:
             self.name = "namerator" if self.name == "" else self.name
         self.name = name.replace(" ", "")
         self.delay = delay
-        self.sess_id = None
         self.loop = asio.get_event_loop()
         self.sess = rq.session()
+        self.device = rand_device()
+
+        self.sess_id = None
+        self.sock = comet.Client("")
 
         # reserve place
         rsp = self.sess.get(f"https://kahoot.it/reserve/session/{pin}/?{t()}")
-        if "x-kahoot-session-token" not in rsp.headers.keys():
+        if "x-kahoot-session-token" not in rsp.headers:
             print(f"Invalid code {pin}")
             return
         sess_token = rsp.headers["x-kahoot-session-token"]
@@ -40,16 +45,70 @@ class Kahoot:
         print("Using name: " + self.name)
 
     def play(self):
+        self.loop.run_until_complete(self._play())
+
+    async def _play(self):
         # don't play if uninitialised
         if not self.sess_id:
             print("Uninitialized")
 
         # url for websocket
-        ws_url = f"wss://kahoot.it/cometd/{self.pin}/{self.sess_id}"
+        url = f"wss://kahoot.it/cometd/{self.pin}/{self.sess_id}"
+
+        async with comet.Client(url, ssl=True) as c:
+            # subscribe to channels
+            self.sock = c
+            await self.sock.subscribe("/service/controller")
+            await self.sock.subscribe("/service/player")
+            await self.sock.subscribe("/service/status")
+
+            # login
+            await self._send("/service/controller", {
+                "type": "login",
+                "gameid": self.pin,
+                "host": "kahoot.it",
+                "name": self.name,
+                "content": json.dumps(self.device)
+            })
+            # login response
+            rsp = await self._recv()
+            if rsp["type"] == "loginResponse":
+                self.cid = rsp["cid"]
+            else:
+                print("No player CID returned")
+                await self._close()
+                return
+            # status
+            rsp = await self._recv()
+            if rsp["type"] == "status":
+                if "status" != "ACTIVE":
+                    print("Quiz status is not active")
+                    await self._close()
+                    return
+
+            # start dance
+            async for raw_msg in self.sock:
+                msg = raw_msg["data"]
+                print(lookup(msg["id"]))
+
+    async def _send(self, channel: str, data):
+        await self.sock.publish(channel, data)
+
+    async def _recv(self) -> dict:
+        rsp = await self.sock.receive()
+        if "data" in rsp:
+            return rsp["data"]
+        return rsp
+
+    async def _close(self):
+        try:
+            await self.sock.close()
+        except:
+            pass
 
 
 def decrypt_sess(js_key, sess_tok) -> str:
-    # decrypt cometd path
+    """Decrypt Cometd path"""
 
     # extract message and offset
     offset_equation = js_key[js_key.index("=") + 1:].strip()
@@ -161,7 +220,7 @@ codes = {
 
 
 def lookup(code) -> str:
-    if code in codes.keys():
+    if code in codes:
         return codes[code]
     return ""
 
@@ -178,10 +237,10 @@ def arg_start():
     except AttributeError:
         print("No \"code\" attribute passed")
 
-    k = Kahoot(args.pin, args.name, args.ans_delay)
+    # k = Kahoot(args.pin, args.name, args.ans_delay)
+    k = Kahoot("8200308", "namerator", 0)
     k.play()
 
 
 if __name__ == "__main__":
-    # arg_start()
-    run("137653", "namerator", 0)
+    arg_start()
