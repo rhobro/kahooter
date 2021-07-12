@@ -12,15 +12,13 @@ os.system("go build -i -o go/bin go/randua.go")
 sess = rq.session()
 
 
-# util funcs used by both challenge and live
-
-
+# use executable to generate random header
 def rand_ua() -> str:
-    # return "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15"
     child = sp.Popen("../go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
     return child.stdout.read().decode()
 
 
+# generate random device config
 def rand_device() -> dict:
     return {
         "userAgent": rand_ua(),
@@ -31,19 +29,21 @@ def rand_device() -> dict:
     }
 
 
+# use Kahoot's API to generate random names
 def namerator() -> str:
     name = sess.get("https://apis.kahoot.it/namerator")
     name = json.loads(name.content)
     return name["name"]
 
 
+# current time in milliseconds from UNIX epoch
 def t() -> int:
     return int(time.time() * 1000)
 
 
-async def json_send(ws, obj):
+async def send(ws, obj):
     await ws.send(json.dumps(obj))
 
 
-async def json_recv(ws):
+async def recv(ws):
     return json.loads(await ws.recv())

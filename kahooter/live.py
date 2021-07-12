@@ -23,7 +23,7 @@ def run(pin, name, delay=.0):
     print("Using name: " + name)
 
     ws_url = f"wss://kahoot.it/cometd/{pin}/{decrypt_websock(c['challenge'], c_rq.headers['x-kahoot-session-token'])}"
-    asio.new_event_loop().run_until_complete(live_async(ws_url, pin, name, delay))
+    asio.get_event_loop().run_until_complete(live_async(ws_url, pin, name, delay))
 
 
 ans = []
@@ -37,44 +37,41 @@ async def live_async(url, pin, name, delay):
     global ans
 
     async with wss.connect(url) as ws:
+
         # handshake + connect
-        await json_send(ws, [
-            {
-                "id": "1",
-                "version": "1.0",
-                "minimumVersion": "1.0",
-                "channel": "/meta/handshake",
-                "supportedConnectionTypes": ["websocket", "long-polling", "callback-polling"],
-                "advice": {
-                    "timeout": 60000,
-                    "interval": 0
-                },
-                "ext": {
-                    "ack": True,
-                    "timesync": {"tc": t(), "l": 0, "o": 0}
-                }
+        await send(ws, [{
+            "id": "1",
+            "version": "1.0",
+            "minimumVersion": "1.0",
+            "channel": "/meta/handshake",
+            "supportedConnectionTypes": ["websocket", "long-polling", "callback-polling"],
+            "advice": {
+                "timeout": 60000,
+                "interval": 0,
+            },
+            "ext": {
+                "ack": True,
+                "timesync": {"tc": t(), "l": 0, "o": 0}
             }
-        ])
-        rsp = await json_recv(ws)
+        }])
+        rsp = await recv(ws)
         cli_id = rsp[0]["clientId"]
-        await json_send(ws, [
-            {
-                "id": str(int(rsp[0]["id"]) + 1),
-                "channel": "/meta/connect",
-                "connectionType": "websocket",
-                "advice": {"timeout": 0},
-                "clientId": cli_id,
-                "ext": {
-                    "ack": 0,
-                    "timesync": {"tc": t(), "l": 100, "o": 2260}
-                }
+        await send(ws, [{
+            "id": str(int(rsp[0]["id"]) + 1),
+            "channel": "/meta/connect",
+            "connectionType": "websocket",
+            "advice": {"timeout": 0},
+            "clientId": cli_id,
+            "ext": {
+                "ack": 0,
+                "timesync": {"tc": t(), "l": 106, "o": 129}
             }
-        ])
+        }])
 
         # start dance with router
         dance = True
         while dance:
-            rsp = await json_recv(ws)
+            rsp = await recv(ws)
 
             for rsp in rsp:
                 if rsp["channel"] == "/service/controller":
@@ -124,13 +121,13 @@ async def live_async(url, pin, name, delay):
                                 # json dumps content and send
                                 req[0]["data"]["content"] = json.dumps(req[0]["data"]["content"])
                                 time.sleep(.25 + delay)
-                                await json_send(ws, req)
+                                await send(ws, req)
                                 print(f"Q{msg['questionIndex'] + 1}: {display_ans}")
 
                         elif "correctCount" in msg.keys():
                             # quiz finished
                             # disconnect
-                            await json_send(ws, [{
+                            await send(ws, [{
                                 "id": str(latest_id + 1),
                                 "channel": "/meta/disconnect",
                                 "clientId": cli_id,
@@ -157,7 +154,7 @@ Player: {name}
                                 return
 
                         if "playerV2" in rsp["data"]["content"]:
-                            await json_send(ws, [{
+                            await send(ws, [{
                                 "id": str(latest_id + 1),
                                 "channel": "/service/controller",
                                 "data": {
@@ -179,7 +176,7 @@ Player: {name}
                 elif rsp["channel"] == "/meta/connect":
                     # acknowledge client is alive
                     latest_id = int(rsp["id"]) + 1
-                    await json_send(ws, [{
+                    await send(ws, [{
                         "id": str(latest_id),
                         "channel": "/meta/connect",
                         "connectionType": "websocket",
@@ -194,7 +191,7 @@ Player: {name}
             if not logged_in:
                 time.sleep(1)
                 # join with player name
-                await json_send(ws, [{
+                await send(ws, [{
                     "id": str(latest_id + 1),
                     "channel": "/service/controller",
                     "data": {
@@ -303,4 +300,5 @@ if __name__ == "__main__":
         run(args.pin, args.name, float(args.ans_delay))
 
 
-    arg_start()
+    # arg_start()
+    run("7682475", "namerator", 0)
