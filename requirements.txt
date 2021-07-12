@@ -1,2 +1,2 @@
-websockets>=9.1
-requests~=2.24.0
+websockets
+requests

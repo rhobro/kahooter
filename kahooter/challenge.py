@@ -130,5 +130,4 @@ if __name__ == "__main__":
         run(args.id, args.name)
 
 
-    # arg_start()
-    run("83e09589-d252-499b-a2ac-69a00c824b8d_1625743516895", "namerator")
+    arg_start()

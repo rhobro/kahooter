@@ -14,7 +14,7 @@ sess = rq.session()
 
 # use executable to generate random header
 def rand_ua() -> str:
-    child = sp.Popen("../go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
+    child = sp.Popen("go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
     return child.stdout.read().decode()
 
 

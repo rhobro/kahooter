@@ -5,7 +5,7 @@ from urllib.parse import quote
 
 import websockets as wss
 
-from kahooter import *
+from __init__ import *
 
 
 def run(pin, name, delay=.0):
@@ -54,6 +54,7 @@ async def live_async(url, pin, name, delay):
                 "timesync": {"tc": t(), "l": 0, "o": 0}
             }
         }])
+
         rsp = await recv(ws)
         cli_id = rsp[0]["clientId"]
         await send(ws, [{
@@ -240,8 +241,7 @@ def find_answers(details) -> list:
 
     while True:
         quizzes = sess.get(
-            f"https://create.kahoot.it/rest/kahoots/?query={quote(details['quizTitle'])}&limit=100&cursor={cursor}",
-            verify=False)
+            f"https://create.kahoot.it/rest/kahoots/?query={quote(details['quizTitle'])}&limit=100&cursor={cursor}")
         quizzes = json.loads(quizzes.content)
 
         # no results
@@ -254,8 +254,7 @@ def find_answers(details) -> list:
                     e["card"]["title"] == details["quizTitle"] and \
                     e["card"]["number_of_questions"] == len(details["quizQuestionAnswers"]):
                 # found it, request answers
-                quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true",
-                                verify=False)
+                quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true")
                 quiz = json.loads(quiz.content)
 
                 for q in quiz["kahoot"]["questions"]:
@@ -301,4 +300,4 @@ if __name__ == "__main__":
 
 
     # arg_start()
-    run("7682475", "namerator", 0)
+    run("137653", "namerator", 0)
