@@ -1,0 +1,325 @@
+Index: kahooter/live.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import argparse as ap\nimport asyncio as asio\nimport base64 as b64\nfrom urllib.parse import quote\n\nimport websockets as wss\n\nfrom kahooter import *\n\n\ndef run(pin, name, delay=.0):\n    # request challenge\n    c_rq = sess.get(f\"https://kahoot.it/reserve/session/{pin}/?{t()}\")\n    if \"x-kahoot-session-token\" not in c_rq.headers.keys():\n        print(f\"Invalid code {pin}\")\n        return\n    c = json.loads(c_rq.content)\n\n    # get name\n    if c[\"namerator\"] or name == \"namerator\":\n        name = namerator()\n    name = name.replace(\" \", \"\")\n    print(\"Using name: \" + name)\n\n    ws_url = f\"wss://kahoot.it/cometd/{pin}/{decrypt_websock(c['challenge'], c_rq.headers['x-kahoot-session-token'])}\"\n    asio.new_event_loop().run_until_complete(live_async(ws_url, pin, name, delay))\n\n\nans = []\n\n\nasync def live_async(url, pin, name, delay):\n    device = rand_device()\n    logged_in = False\n    latest_id = 0\n    questions_started = False\n    global ans\n\n    async with wss.connect(url) as ws:\n        # handshake + connect\n        await json_send(ws, [\n            {\n                \"id\": \"1\",\n                \"version\": \"1.0\",\n                \"minimumVersion\": \"1.0\",\n                \"channel\": \"/meta/handshake\",\n                \"supportedConnectionTypes\": [\"websocket\", \"long-polling\", \"callback-polling\"],\n                \"advice\": {\n                    \"timeout\": 60000,\n                    \"interval\": 0\n                },\n                \"ext\": {\n                    \"ack\": True,\n                    \"timesync\": {\"tc\": t(), \"l\": 0, \"o\": 0}\n                }\n            }\n        ])\n        rsp = await json_recv(ws)\n        cli_id = rsp[0][\"clientId\"]\n        await json_send(ws, [\n            {\n                \"id\": str(int(rsp[0][\"id\"]) + 1),\n                \"channel\": \"/meta/connect\",\n                \"connectionType\": \"websocket\",\n                \"advice\": {\"timeout\": 0},\n                \"clientId\": cli_id,\n                \"ext\": {\n                    \"ack\": 0,\n                    \"timesync\": {\"tc\": t(), \"l\": 100, \"o\": 2260}\n                }\n            }\n        ])\n\n        # start dance with router\n        dance = True\n        while dance:\n            rsp = await json_recv(ws)\n\n            for rsp in rsp:\n                if rsp[\"channel\"] == \"/service/controller\":\n                    if \"data\" in rsp.keys():\n                        if rsp[\"data\"][\"type\"] == \"loginResponse\":\n                            if \"cid\" not in rsp[\"data\"].keys():\n                                print(f\"Invalid code {pin}\")\n                                return\n\n                elif rsp[\"channel\"] == \"/service/player\":\n                    msg = json.loads(rsp[\"data\"][\"content\"])\n\n                    if questions_started:\n                        if \"timeLeft\" in msg.keys() and \"getReadyTimeRemaining\" not in msg.keys():\n                            if msg[\"timeLeft\"] > 0:\n                                # answer\n                                latest_id += 1\n                                if type(ans[msg[\"questionIndex\"]]) == dict:\n                                    # single answer\n                                    post_ans = ans[msg[\"questionIndex\"]][\"idx\"]\n                                    display_ans = ans[msg[\"questionIndex\"]][\"answer\"]\n\n                                elif type(ans[msg[\"questionIndex\"]]) == list:\n                                    # multiple answers\n                                    post_ans = [a[\"idx\"] for a in ans[msg[\"questionIndex\"]]]\n                                    display_ans = \" | \".join([a[\"answer\"] for a in ans[msg[\"questionIndex\"]]])\n\n                                req = [{\n                                    \"id\": str(latest_id),\n                                    \"channel\": \"/service/controller\",\n                                    \"data\": {\n                                        \"id\": 45,\n                                        \"type\": \"message\",\n                                        \"gameid\": str(pin),\n                                        \"host\": \"kahoot.it\",\n                                        \"content\": {\n                                            \"type\": msg[\"gameBlockType\"],\n                                            \"choice\": post_ans,\n                                            \"questionIndex\": msg[\"questionIndex\"],\n                                            \"meta\": {\"lag\": 127}\n                                        }\n                                    },\n                                    \"clientId\": cli_id,\n                                    \"ext\": {}\n                                }]\n\n                                # json dumps content and send\n                                req[0][\"data\"][\"content\"] = json.dumps(req[0][\"data\"][\"content\"])\n                                time.sleep(.25 + delay)\n                                await json_send(ws, req)\n                                print(f\"Q{msg['questionIndex'] + 1}: {display_ans}\")\n\n                        elif \"correctCount\" in msg.keys():\n                            # quiz finished\n                            # disconnect\n                            await json_send(ws, [{\n                                \"id\": str(latest_id + 1),\n                                \"channel\": \"/meta/disconnect\",\n                                \"clientId\": cli_id,\n                                \"ext\": {\n                                    \"timesync\": {\"tc\": t(), \"l\": 127, \"o\": 2196}\n                                }\n                            }])\n\n                            # print summary\n                            print(f\"\"\"\\n\\nCompleted Quiz\nPlayer: {name}\n - Rank: {msg['rank']}\n - Score: {msg['totalScore']}\n - Correct: {msg['correctCount']} | Incorrect: {msg['incorrectCount']}\"\"\")\n                            dance = False\n\n                    else:\n                        # get answers\n                        if \"quizTitle\" in msg.keys():\n                            ans = find_answers(msg)\n\n                            if len(ans) == 0:\n                                print(\"Unable to find quiz answers, could be private\")\n                                return\n\n                        if \"playerV2\" in rsp[\"data\"][\"content\"]:\n                            await json_send(ws, [{\n                                \"id\": str(latest_id + 1),\n                                \"channel\": \"/service/controller\",\n                                \"data\": {\n                                    \"id\": rsp[\"data\"][\"id\"] + 1,\n                                    \"type\": \"message\",\n                                    \"gameid\": pin,\n                                    \"host\": \"kahoot.it\",\n                                    \"content\": \"\"\n                                },\n                                \"clientId\": cli_id,\n                                \"ext\": {}\n                            }])\n                            time.sleep(0.7)\n\n                        elif \"quizTitle\" in rsp[\"data\"][\"content\"]:\n                            questions_started = True  # quiz admin has started the quiz\n                            print(\"Quiz commenced\")\n\n                elif rsp[\"channel\"] == \"/meta/connect\":\n                    # acknowledge client is alive\n                    latest_id = int(rsp[\"id\"]) + 1\n                    await json_send(ws, [{\n                        \"id\": str(latest_id),\n                        \"channel\": \"/meta/connect\",\n                        \"connectionType\": \"websocket\",\n                        \"clientId\": cli_id,\n                        \"ext\": {\n                            \"ack\": rsp[\"ext\"][\"ack\"],\n                            \"timesync\": {\"tc\": t(), \"l\": 100, \"o\": 2260}\n                        }\n                    }])\n\n            # start quiz logic\n            if not logged_in:\n                time.sleep(1)\n                # join with player name\n                await json_send(ws, [{\n                    \"id\": str(latest_id + 1),\n                    \"channel\": \"/service/controller\",\n                    \"data\": {\n                        \"type\": \"login\",\n                        \"gameid\": str(pin),\n                        \"host\": \"kahoot.it\",\n                        \"name\": name,\n                        \"content\": json.dumps(device)\n                    },\n                    \"clientId\": cli_id,\n                    \"ext\": {}\n                }])\n                time.sleep(1)\n                logged_in = True\n\n\ndef decrypt_websock(js_key, sess_tok) -> str:\n    # decrypt cometd path\n\n    # extract message and offset\n    offset_equation = js_key[js_key.index(\"=\") + 1:].strip()\n    offset_equation = offset_equation[:offset_equation.index(\";\")].replace(\"\\u2003\", \"\")\n    tmp_msg = js_key[js_key.index(\"'\"):]\n    tmp_msg = tmp_msg[1: tmp_msg.index(\")\") - 1]\n    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else \"\")\n\n    # reserve challenge to answer\n    msg = \"\"\n    for i, c in enumerate(tmp_msg):\n        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)\n\n    # base64 decode session token\n    b64_sess_tok = b64.decodebytes(bytes(sess_tok, \"utf-8\")).decode(\"utf-8\")\n\n    # xor message and base64 session token\n    cometd_path = \"\"\n    for i, c in enumerate(b64_sess_tok):\n        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))\n\n    return cometd_path\n\n\ndef find_answers(details) -> list:\n    cursor = 0\n    answers = []\n\n    while True:\n        quizzes = sess.get(\n            f\"https://create.kahoot.it/rest/kahoots/?query={quote(details['quizTitle'])}&limit=100&cursor={cursor}\",\n            verify=False)\n        quizzes = json.loads(quizzes.content)\n\n        # no results\n        if len(quizzes[\"entities\"]) == 0:\n            return []\n\n        # find quiz\n        for e in quizzes[\"entities\"]:\n            if e[\"card\"][\"type\"] == details[\"quizType\"] and \\\n                    e[\"card\"][\"title\"] == details[\"quizTitle\"] and \\\n                    e[\"card\"][\"number_of_questions\"] == len(details[\"quizQuestionAnswers\"]):\n                # found it, request answers\n                quiz = sess.get(f\"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true\",\n                                verify=False)\n                quiz = json.loads(quiz.content)\n\n                for q in quiz[\"kahoot\"][\"questions\"]:\n                    choices = []\n                    for i, c in enumerate(q[\"choices\"]):\n                        if c[\"correct\"]:\n                            choices.append({\n                                \"idx\": i,\n                                \"answer\": c[\"answer\"]\n                            })\n\n                    if len(choices) == 1:\n                        # only 1 answer\n                        answers.append(choices[0])\n                    else:\n                        # multiple answers\n                        answers.append(choices)\n\n                break\n\n        if len(answers) != 0:\n            break\n\n        cursor += len(quizzes[\"entities\"])\n\n    return answers\n\n\nif __name__ == \"__main__\":\n    def arg_start():\n        parser = ap.ArgumentParser()\n        parser.add_argument(\"-pin\", \"--pin\", help=\"Pin of the quiz you are automating\")\n        parser.add_argument(\"-name\", \"--name\", default=\"namerator\",\n                            help=\"Character name to use with the quiz (use \\\"namerator\\\" to use Kahoot's naming system)\")\n        parser.add_argument(\"-d\", \"--ans_delay\", default=\"0\", help=\"(optional) Delay before answering question\")\n        args = parser.parse_args()\n        try:\n            _ = args.pin\n        except AttributeError:\n            print(\"No \\\"code\\\" attribute passed\")\n\n        run(args.pin, args.name, float(args.ans_delay))\n\n\n    arg_start()\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/kahooter/live.py b/kahooter/live.py
+--- a/kahooter/live.py	(revision acd6ac3152934e2ecee86f621ffb112036d8abf7)
++++ b/kahooter/live.py	(date 1625764402598)
+@@ -23,7 +23,7 @@
+     print("Using name: " + name)
+ 
+     ws_url = f"wss://kahoot.it/cometd/{pin}/{decrypt_websock(c['challenge'], c_rq.headers['x-kahoot-session-token'])}"
+-    asio.new_event_loop().run_until_complete(live_async(ws_url, pin, name, delay))
++    asio.get_event_loop().run_until_complete(live_async(ws_url, pin, name, delay))
+ 
+ 
+ ans = []
+@@ -37,44 +37,41 @@
+     global ans
+ 
+     async with wss.connect(url) as ws:
++
+         # handshake + connect
+-        await json_send(ws, [
+-            {
+-                "id": "1",
+-                "version": "1.0",
+-                "minimumVersion": "1.0",
+-                "channel": "/meta/handshake",
+-                "supportedConnectionTypes": ["websocket", "long-polling", "callback-polling"],
+-                "advice": {
+-                    "timeout": 60000,
+-                    "interval": 0
+-                },
+-                "ext": {
+-                    "ack": True,
+-                    "timesync": {"tc": t(), "l": 0, "o": 0}
+-                }
++        await send(ws, [{
++            "id": "1",
++            "version": "1.0",
++            "minimumVersion": "1.0",
++            "channel": "/meta/handshake",
++            "supportedConnectionTypes": ["websocket", "long-polling", "callback-polling"],
++            "advice": {
++                "timeout": 60000,
++                "interval": 0,
++            },
++            "ext": {
++                "ack": True,
++                "timesync": {"tc": t(), "l": 0, "o": 0}
+             }
+-        ])
+-        rsp = await json_recv(ws)
++        }])
++        rsp = await recv(ws)
+         cli_id = rsp[0]["clientId"]
+-        await json_send(ws, [
+-            {
+-                "id": str(int(rsp[0]["id"]) + 1),
+-                "channel": "/meta/connect",
+-                "connectionType": "websocket",
+-                "advice": {"timeout": 0},
+-                "clientId": cli_id,
+-                "ext": {
+-                    "ack": 0,
+-                    "timesync": {"tc": t(), "l": 100, "o": 2260}
+-                }
++        await send(ws, [{
++            "id": str(int(rsp[0]["id"]) + 1),
++            "channel": "/meta/connect",
++            "connectionType": "websocket",
++            "advice": {"timeout": 0},
++            "clientId": cli_id,
++            "ext": {
++                "ack": 0,
++                "timesync": {"tc": t(), "l": 106, "o": 129}
+             }
+-        ])
++        }])
+ 
+         # start dance with router
+         dance = True
+         while dance:
+-            rsp = await json_recv(ws)
++            rsp = await recv(ws)
+ 
+             for rsp in rsp:
+                 if rsp["channel"] == "/service/controller":
+@@ -124,13 +121,13 @@
+                                 # json dumps content and send
+                                 req[0]["data"]["content"] = json.dumps(req[0]["data"]["content"])
+                                 time.sleep(.25 + delay)
+-                                await json_send(ws, req)
++                                await send(ws, req)
+                                 print(f"Q{msg['questionIndex'] + 1}: {display_ans}")
+ 
+                         elif "correctCount" in msg.keys():
+                             # quiz finished
+                             # disconnect
+-                            await json_send(ws, [{
++                            await send(ws, [{
+                                 "id": str(latest_id + 1),
+                                 "channel": "/meta/disconnect",
+                                 "clientId": cli_id,
+@@ -157,7 +154,7 @@
+                                 return
+ 
+                         if "playerV2" in rsp["data"]["content"]:
+-                            await json_send(ws, [{
++                            await send(ws, [{
+                                 "id": str(latest_id + 1),
+                                 "channel": "/service/controller",
+                                 "data": {
+@@ -179,7 +176,7 @@
+                 elif rsp["channel"] == "/meta/connect":
+                     # acknowledge client is alive
+                     latest_id = int(rsp["id"]) + 1
+-                    await json_send(ws, [{
++                    await send(ws, [{
+                         "id": str(latest_id),
+                         "channel": "/meta/connect",
+                         "connectionType": "websocket",
+@@ -194,7 +191,7 @@
+             if not logged_in:
+                 time.sleep(1)
+                 # join with player name
+-                await json_send(ws, [{
++                await send(ws, [{
+                     "id": str(latest_id + 1),
+                     "channel": "/service/controller",
+                     "data": {
+@@ -303,4 +300,5 @@
+         run(args.pin, args.name, float(args.ans_delay))
+ 
+ 
+-    arg_start()
++    # arg_start()
++    run("7682475", "namerator", 0)
+Index: kahooter/__init__.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import json\nimport os\nimport subprocess as sp\nimport time\n\nimport requests as rq\n\n# recompile randua binary based on OS\nos.system(\"go build -i -o go/bin go/randua.go\")\n\n# session to use for requests\nsess = rq.session()\n\n\n# util funcs used by both challenge and live\n\n\ndef rand_ua() -> str:\n    # return \"Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15\"\n    child = sp.Popen(\"../go/bin/randua\", stdout=sp.PIPE, stderr=sp.STDOUT)\n    return child.stdout.read().decode()\n\n\ndef rand_device() -> dict:\n    return {\n        \"userAgent\": rand_ua(),\n        \"screen\": {\n            \"width\": 1980,\n            \"height\": 1080\n        }\n    }\n\n\ndef namerator() -> str:\n    name = sess.get(\"https://apis.kahoot.it/namerator\")\n    name = json.loads(name.content)\n    return name[\"name\"]\n\n\ndef t() -> int:\n    return int(time.time() * 1000)\n\n\nasync def json_send(ws, obj):\n    await ws.send(json.dumps(obj))\n\n\nasync def json_recv(ws):\n    return json.loads(await ws.recv())\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/kahooter/__init__.py b/kahooter/__init__.py
+--- a/kahooter/__init__.py	(revision acd6ac3152934e2ecee86f621ffb112036d8abf7)
++++ b/kahooter/__init__.py	(date 1625759757848)
+@@ -12,15 +12,13 @@
+ sess = rq.session()
+ 
+ 
+-# util funcs used by both challenge and live
+-
+-
++# use executable to generate random header
+ def rand_ua() -> str:
+-    # return "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.1 Safari/605.1.15"
+     child = sp.Popen("../go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
+     return child.stdout.read().decode()
+ 
+ 
++# generate random device config
+ def rand_device() -> dict:
+     return {
+         "userAgent": rand_ua(),
+@@ -31,19 +29,21 @@
+     }
+ 
+ 
++# use Kahoot's API to generate random names
+ def namerator() -> str:
+     name = sess.get("https://apis.kahoot.it/namerator")
+     name = json.loads(name.content)
+     return name["name"]
+ 
+ 
++# current time in milliseconds from UNIX epoch
+ def t() -> int:
+     return int(time.time() * 1000)
+ 
+ 
+-async def json_send(ws, obj):
++async def send(ws, obj):
+     await ws.send(json.dumps(obj))
+ 
+ 
+-async def json_recv(ws):
++async def recv(ws):
+     return json.loads(await ws.recv())
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ChangeListManager\">\n    <list default=\"true\" id=\"1d2f00d8-e8f0-4ecc-aca1-b2f156214523\" name=\"Default Changelist\" comment=\"\" />\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\n  </component>\n  <component name=\"FileTemplateManagerImpl\">\n    <option name=\"RECENT_TEMPLATES\">\n      <list>\n        <option value=\"Python Script\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"FlaskConsoleOptions\" custom-start-script=\"import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\\nApp: %s [%s]\\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))\">\n    <envs>\n      <env key=\"FLASK_APP\" value=\"app\" />\n    </envs>\n    <option name=\"myCustomStartScript\" value=\"import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\\nApp: %s [%s]\\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))\" />\n    <option name=\"myEnvs\">\n      <map>\n        <entry key=\"FLASK_APP\" value=\"app\" />\n      </map>\n    </option>\n  </component>\n  <component name=\"Git.Settings\">\n    <option name=\"PUSH_TAGS\">\n      <GitPushTagMode>\n        <option name=\"argument\" value=\"--tags\" />\n        <option name=\"title\" value=\"All\" />\n      </GitPushTagMode>\n    </option>\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\n    <option name=\"RESET_MODE\" value=\"HARD\" />\n    <option name=\"UPDATE_TYPE\" value=\"REBASE\" />\n  </component>\n  <component name=\"ProjectId\" id=\"1oTgDQAGzTBIa2vx4C51OuiCg7X\" />\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\n  </component>\n  <component name=\"ProjectViewState\">\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\n    <option name=\"showLibraryContents\" value=\"true\" />\n  </component>\n  <component name=\"PropertiesComponent\">\n    <property name=\"ASKED_ADD_EXTERNAL_FILES\" value=\"true\" />\n    <property name=\"ASKED_SHARE_PROJECT_CONFIGURATION_FILES\" value=\"true\" />\n    <property name=\"RunOnceActivity.OpenProjectViewOnStart\" value=\"true\" />\n    <property name=\"RunOnceActivity.ShowReadmeOnStart\" value=\"true\" />\n    <property name=\"SHARE_PROJECT_CONFIGURATION_FILES\" value=\"true\" />\n    <property name=\"WebServerToolWindowFactoryState\" value=\"false\" />\n    <property name=\"last_opened_file_path\" value=\"$PROJECT_DIR$\" />\n    <property name=\"restartRequiresConfirmation\" value=\"false\" />\n    <property name=\"settings.editor.selected.configurable\" value=\"com.jetbrains.python.configuration.PythonContentEntriesConfigurable\" />\n  </component>\n  <component name=\"RecentsManager\">\n    <key name=\"MoveFile.RECENT_KEYS\">\n      <recent name=\"$PROJECT_DIR$/py\" />\n      <recent name=\"$PROJECT_DIR$\" />\n      <recent name=\"$PROJECT_DIR$/test\" />\n      <recent name=\"$PROJECT_DIR$/kahooter\" />\n    </key>\n  </component>\n  <component name=\"RunManager\">\n    <configuration name=\"challenge\" type=\"PythonConfigurationType\" factoryName=\"Python\" temporary=\"true\" nameIsGenerated=\"true\">\n      <module name=\"kahooter\" />\n      <option name=\"INTERPRETER_OPTIONS\" value=\"\" />\n      <option name=\"PARENT_ENVS\" value=\"true\" />\n      <envs>\n        <env name=\"PYTHONUNBUFFERED\" value=\"1\" />\n      </envs>\n      <option name=\"SDK_HOME\" value=\"\" />\n      <option name=\"WORKING_DIRECTORY\" value=\"$PROJECT_DIR$/kahooter\" />\n      <option name=\"IS_MODULE_SDK\" value=\"true\" />\n      <option name=\"ADD_CONTENT_ROOTS\" value=\"true\" />\n      <option name=\"ADD_SOURCE_ROOTS\" value=\"true\" />\n      <EXTENSION ID=\"PythonCoverageRunConfigurationExtension\" runner=\"coverage.py\" />\n      <option name=\"SCRIPT_NAME\" value=\"$PROJECT_DIR$/kahooter/challenge.py\" />\n      <option name=\"PARAMETERS\" value=\"\" />\n      <option name=\"SHOW_COMMAND_LINE\" value=\"false\" />\n      <option name=\"EMULATE_TERMINAL\" value=\"false\" />\n      <option name=\"MODULE_MODE\" value=\"false\" />\n      <option name=\"REDIRECT_INPUT\" value=\"false\" />\n      <option name=\"INPUT_FILE\" value=\"\" />\n      <method v=\"2\" />\n    </configuration>\n    <recent_temporary>\n      <list>\n        <item itemvalue=\"Python.challenge\" />\n      </list>\n    </recent_temporary>\n  </component>\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\n  <component name=\"TaskManager\">\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\n      <changelist id=\"1d2f00d8-e8f0-4ecc-aca1-b2f156214523\" name=\"Default Changelist\" comment=\"\" />\n      <created>1613315877309</created>\n      <option name=\"number\" value=\"Default\" />\n      <option name=\"presentableId\" value=\"Default\" />\n      <updated>1613315877309</updated>\n      <workItem from=\"1613315881053\" duration=\"10501000\" />\n      <workItem from=\"1613402572234\" duration=\"5090000\" />\n      <workItem from=\"1613557162730\" duration=\"3116000\" />\n      <workItem from=\"1613576868370\" duration=\"16665000\" />\n      <workItem from=\"1613649960089\" duration=\"1574000\" />\n      <workItem from=\"1613667124369\" duration=\"5097000\" />\n      <workItem from=\"1613721241115\" duration=\"16208000\" />\n      <workItem from=\"1613826694227\" duration=\"27881000\" />\n      <workItem from=\"1614074163900\" duration=\"779000\" />\n      <workItem from=\"1614075206512\" duration=\"765000\" />\n      <workItem from=\"1614158274971\" duration=\"3143000\" />\n      <workItem from=\"1614186421358\" duration=\"1604000\" />\n      <workItem from=\"1614243841021\" duration=\"828000\" />\n      <workItem from=\"1614260394336\" duration=\"22469000\" />\n      <workItem from=\"1614544882521\" duration=\"176000\" />\n      <workItem from=\"1614630204361\" duration=\"3740000\" />\n      <workItem from=\"1614672835067\" duration=\"3394000\" />\n      <workItem from=\"1614693170537\" duration=\"710000\" />\n      <workItem from=\"1614760540695\" duration=\"45172000\" />\n      <workItem from=\"1615018451884\" duration=\"1451000\" />\n      <workItem from=\"1615051191498\" duration=\"2168000\" />\n    </task>\n    <task id=\"LOCAL-00001\" summary=\"decrypted cometd\">\n      <created>1613598867835</created>\n      <option name=\"number\" value=\"00001\" />\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1613598867836</updated>\n    </task>\n    <task id=\"LOCAL-00002\" summary=\"implemented handshake, login and answer reception\">\n      <created>1613816655879</created>\n      <option name=\"number\" value=\"00002\" />\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1613816655879</updated>\n    </task>\n    <task id=\"LOCAL-00003\" summary=\"can join quiz and wait for quiz to start\">\n      <created>1613925928110</created>\n      <option name=\"number\" value=\"00003\" />\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1613925928111</updated>\n    </task>\n    <task id=\"LOCAL-00004\" summary=\"able to answer questions&#10;&#10;next -&gt; to answer correctly\">\n      <created>1614261448617</created>\n      <option name=\"number\" value=\"00004\" />\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614261448617</updated>\n    </task>\n    <task id=\"LOCAL-00005\" summary=\"random answers\">\n      <created>1614462291841</created>\n      <option name=\"number\" value=\"00005\" />\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614462291842</updated>\n    </task>\n    <task id=\"LOCAL-00006\" summary=\"text based ui\">\n      <created>1614534770635</created>\n      <option name=\"number\" value=\"00006\" />\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614534770635</updated>\n    </task>\n    <task id=\"LOCAL-00007\" summary=\"formatted code&#10;&#10;next to get correct answers\">\n      <created>1614537677714</created>\n      <option name=\"number\" value=\"00007\" />\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614537677714</updated>\n    </task>\n    <task id=\"LOCAL-00008\" summary=\"updated\">\n      <created>1614544396832</created>\n      <option name=\"number\" value=\"00008\" />\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614544396832</updated>\n    </task>\n    <task id=\"LOCAL-00009\" summary=\"created programmatic endpoint to start quiz\">\n      <created>1614670665508</created>\n      <option name=\"number\" value=\"00009\" />\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614670665509</updated>\n    </task>\n    <task id=\"LOCAL-00010\" summary=\"found answers\">\n      <created>1614771897312</created>\n      <option name=\"number\" value=\"00010\" />\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614771897312</updated>\n    </task>\n    <task id=\"LOCAL-00011\" summary=\"converted ans to idxes\">\n      <created>1614772512120</created>\n      <option name=\"number\" value=\"00011\" />\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614772512121</updated>\n    </task>\n    <task id=\"LOCAL-00012\" summary=\"working for normal quiz questions\">\n      <created>1614773483129</created>\n      <option name=\"number\" value=\"00012\" />\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614773483129</updated>\n    </task>\n    <task id=\"LOCAL-00013\" summary=\"Done. initial tests seem to be working\">\n      <created>1614783110240</created>\n      <option name=\"number\" value=\"00013\" />\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614783110240</updated>\n    </task>\n    <task id=\"LOCAL-00014\" summary=\"del planning\">\n      <created>1614783231265</created>\n      <option name=\"number\" value=\"00014\" />\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614783231265</updated>\n    </task>\n    <task id=\"LOCAL-00015\" summary=\"default arg values to prevent errors. period = delay + .25\">\n      <created>1614784733612</created>\n      <option name=\"number\" value=\"00015\" />\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614784733612</updated>\n    </task>\n    <task id=\"LOCAL-00016\" summary=\"tested find answers\">\n      <created>1614791033635</created>\n      <option name=\"number\" value=\"00016\" />\n      <option name=\"presentableId\" value=\"LOCAL-00016\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614791033635</updated>\n    </task>\n    <task id=\"LOCAL-00017\" summary=\"converted to modules\">\n      <created>1614792398376</created>\n      <option name=\"number\" value=\"00017\" />\n      <option name=\"presentableId\" value=\"LOCAL-00017\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614792398376</updated>\n    </task>\n    <task id=\"LOCAL-00018\" summary=\"basic bs design\">\n      <created>1614804886856</created>\n      <option name=\"number\" value=\"00018\" />\n      <option name=\"presentableId\" value=\"LOCAL-00018\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614804886856</updated>\n    </task>\n    <task id=\"LOCAL-00019\" summary=\"going to use android app instead of website&#10;&#10;ensures exclusivity of this project so that it does not get into the wrong hands.\">\n      <created>1614935148204</created>\n      <option name=\"number\" value=\"00019\" />\n      <option name=\"presentableId\" value=\"LOCAL-00019\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614935148204</updated>\n    </task>\n    <task id=\"LOCAL-00020\" summary=\"challenge can jumble\">\n      <created>1614940643374</created>\n      <option name=\"number\" value=\"00020\" />\n      <option name=\"presentableId\" value=\"LOCAL-00020\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1614940643374</updated>\n    </task>\n    <task id=\"LOCAL-00021\" summary=\"created proj + not possible to solve jumble on live.py\">\n      <created>1615024451797</created>\n      <option name=\"number\" value=\"00021\" />\n      <option name=\"presentableId\" value=\"LOCAL-00021\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1615024451797</updated>\n    </task>\n    <task id=\"LOCAL-00022\" summary=\"find online ide to run it\">\n      <created>1615051466295</created>\n      <option name=\"number\" value=\"00022\" />\n      <option name=\"presentableId\" value=\"LOCAL-00022\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1615051466295</updated>\n    </task>\n    <task id=\"LOCAL-00023\" summary=\"update imports\">\n      <created>1615062327445</created>\n      <option name=\"number\" value=\"00023\" />\n      <option name=\"presentableId\" value=\"LOCAL-00023\" />\n      <option name=\"project\" value=\"LOCAL\" />\n      <updated>1615062327445</updated>\n    </task>\n    <option name=\"localTasksCounter\" value=\"24\" />\n    <servers />\n  </component>\n  <component name=\"TypeScriptGeneratedFilesManager\">\n    <option name=\"version\" value=\"3\" />\n  </component>\n  <component name=\"UpdateCopyrightCheckinHandler\">\n    <option name=\"UPDATE_COPYRIGHT\" value=\"true\" />\n  </component>\n  <component name=\"Vcs.Log.Tabs.Properties\">\n    <option name=\"TAB_STATES\">\n      <map>\n        <entry key=\"MAIN\">\n          <value>\n            <State />\n          </value>\n        </entry>\n      </map>\n    </option>\n    <option name=\"oldMeFiltersMigrated\" value=\"true\" />\n  </component>\n  <component name=\"VcsManagerConfiguration\">\n    <option name=\"CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT\" value=\"true\" />\n    <option name=\"CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT\" value=\"true\" />\n    <option name=\"ADD_EXTERNAL_FILES_SILENTLY\" value=\"true\" />\n    <MESSAGE value=\"can join quiz and wait for quiz to start\" />\n    <MESSAGE value=\"able to answer questions&#10;&#10;next -&gt; to answer correctly\" />\n    <MESSAGE value=\"random answers\" />\n    <MESSAGE value=\"text based ui\" />\n    <MESSAGE value=\"formatted code&#10;&#10;next to get correct answers\" />\n    <MESSAGE value=\"updated\" />\n    <MESSAGE value=\"created programmatic endpoint to start quiz\" />\n    <MESSAGE value=\"found answers\" />\n    <MESSAGE value=\"converted ans to idxes\" />\n    <MESSAGE value=\"working for normal quiz questions\" />\n    <MESSAGE value=\"working for mcq as well\" />\n    <MESSAGE value=\"Done. initial tests seem to be working\" />\n    <MESSAGE value=\"del planning\" />\n    <MESSAGE value=\"default arg values to prevent errors. period = delay + .25\" />\n    <MESSAGE value=\"tested find answers\" />\n    <MESSAGE value=\"README.md v1\" />\n    <MESSAGE value=\"converted to modules\" />\n    <MESSAGE value=\"basic design\" />\n    <MESSAGE value=\"basic bs design\" />\n    <MESSAGE value=\"moving to rhobro.github.io\" />\n    <MESSAGE value=\"going to use android app instead of website&#10;&#10;ensures exclusivity of this project so that it does not get into the wrong hands.\" />\n    <MESSAGE value=\"challenge can jumble\" />\n    <MESSAGE value=\"created proj + not possible to solve jumble on live.py\" />\n    <MESSAGE value=\"find online ide to run it\" />\n    <MESSAGE value=\"update imports\" />\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"update imports\" />\n    <option name=\"OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT\" value=\"true\" />\n    <option name=\"REFORMAT_BEFORE_PROJECT_COMMIT\" value=\"true\" />\n    <option name=\"REARRANGE_BEFORE_PROJECT_COMMIT\" value=\"true\" />\n  </component>\n  <component name=\"XDebuggerManager\">\n    <breakpoint-manager>\n      <breakpoints>\n        <line-breakpoint enabled=\"true\" suspend=\"THREAD\" type=\"python-line\">\n          <url>file://$PROJECT_DIR$/kahooter/challenge.py</url>\n          <line>109</line>\n          <option name=\"timeStamp\" value=\"7\" />\n        </line-breakpoint>\n      </breakpoints>\n      <default-breakpoints>\n        <breakpoint type=\"python-exception\">\n          <properties notifyOnTerminate=\"true\" exception=\"BaseException\">\n            <option name=\"notifyOnTerminate\" value=\"true\" />\n          </properties>\n        </breakpoint>\n      </default-breakpoints>\n    </breakpoint-manager>\n    <watches-manager>\n      <configuration name=\"PythonConfigurationType\">\n        <watch expression=\"name\" language=\"Python\" />\n      </configuration>\n    </watches-manager>\n  </component>\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\n    <SUITE FILE_PATH=\"coverage/kahooter$live.coverage\" NAME=\"live Coverage Results\" MODIFIED=\"1614544186078\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\n    <SUITE FILE_PATH=\"coverage/kahooter$__init__.coverage\" NAME=\"__init__ Coverage Results\" MODIFIED=\"1625743566069\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/kahooter\" />\n    <SUITE FILE_PATH=\"coverage/kahooter$main.coverage\" NAME=\"main Coverage Results\" MODIFIED=\"1613375803366\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\n    <SUITE FILE_PATH=\"coverage/kahooter$challenge.coverage\" NAME=\"challenge Coverage Results\" MODIFIED=\"1625751851554\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"true\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$/kahooter\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision acd6ac3152934e2ecee86f621ffb112036d8abf7)
++++ b/.idea/workspace.xml	(date 1626083622978)
+@@ -1,7 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="ChangeListManager">
+-    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="" />
++    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/kahooter/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/__init__.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/kahooter/live.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/live.py" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -51,6 +55,7 @@
+     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+     <property name="WebServerToolWindowFactoryState" value="false" />
++    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="JSON" />
+     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+     <property name="restartRequiresConfirmation" value="false" />
+     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+@@ -63,7 +68,7 @@
+       <recent name="$PROJECT_DIR$/kahooter" />
+     </key>
+   </component>
+-  <component name="RunManager">
++  <component name="RunManager" selected="Python.live">
+     <configuration name="challenge" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="kahooter" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -86,8 +91,31 @@
+       <option name="INPUT_FILE" value="" />
+       <method v="2" />
+     </configuration>
++    <configuration name="live" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
++      <module name="kahooter" />
++      <option name="INTERPRETER_OPTIONS" value="" />
++      <option name="PARENT_ENVS" value="true" />
++      <envs>
++        <env name="PYTHONUNBUFFERED" value="1" />
++      </envs>
++      <option name="SDK_HOME" value="" />
++      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/kahooter" />
++      <option name="IS_MODULE_SDK" value="true" />
++      <option name="ADD_CONTENT_ROOTS" value="true" />
++      <option name="ADD_SOURCE_ROOTS" value="true" />
++      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
++      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/kahooter/live.py" />
++      <option name="PARAMETERS" value="" />
++      <option name="SHOW_COMMAND_LINE" value="false" />
++      <option name="EMULATE_TERMINAL" value="false" />
++      <option name="MODULE_MODE" value="false" />
++      <option name="REDIRECT_INPUT" value="false" />
++      <option name="INPUT_FILE" value="" />
++      <method v="2" />
++    </configuration>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Python.live" />
+         <item itemvalue="Python.challenge" />
+       </list>
+     </recent_temporary>
+@@ -283,7 +311,14 @@
+       <option name="project" value="LOCAL" />
+       <updated>1615062327445</updated>
+     </task>
+-    <option name="localTasksCounter" value="24" />
++    <task id="LOCAL-00024" summary="fixed challenge.py">
++      <created>1625752125619</created>
++      <option name="number" value="00024" />
++      <option name="presentableId" value="LOCAL-00024" />
++      <option name="project" value="LOCAL" />
++      <updated>1625752125620</updated>
++    </task>
++    <option name="localTasksCounter" value="25" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -308,7 +343,6 @@
+     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
+     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+-    <MESSAGE value="can join quiz and wait for quiz to start" />
+     <MESSAGE value="able to answer questions&#10;&#10;next -&gt; to answer correctly" />
+     <MESSAGE value="random answers" />
+     <MESSAGE value="text based ui" />
+@@ -333,20 +367,14 @@
+     <MESSAGE value="created proj + not possible to solve jumble on live.py" />
+     <MESSAGE value="find online ide to run it" />
+     <MESSAGE value="update imports" />
+-    <option name="LAST_COMMIT_MESSAGE" value="update imports" />
++    <MESSAGE value="fixed challenge.py" />
++    <option name="LAST_COMMIT_MESSAGE" value="fixed challenge.py" />
+     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
+   </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+-      <breakpoints>
+-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+-          <url>file://$PROJECT_DIR$/kahooter/challenge.py</url>
+-          <line>109</line>
+-          <option name="timeStamp" value="7" />
+-        </line-breakpoint>
+-      </breakpoints>
+       <default-breakpoints>
+         <breakpoint type="python-exception">
+           <properties notifyOnTerminate="true" exception="BaseException">
+@@ -362,9 +390,9 @@
+     </watches-manager>
+   </component>
+   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+-    <SUITE FILE_PATH="coverage/kahooter$live.coverage" NAME="live Coverage Results" MODIFIED="1614544186078" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
++    <SUITE FILE_PATH="coverage/kahooter$live.coverage" NAME="live Coverage Results" MODIFIED="1625764402604" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/kahooter" />
+     <SUITE FILE_PATH="coverage/kahooter$__init__.coverage" NAME="__init__ Coverage Results" MODIFIED="1625743566069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/kahooter" />
+     <SUITE FILE_PATH="coverage/kahooter$main.coverage" NAME="main Coverage Results" MODIFIED="1613375803366" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+-    <SUITE FILE_PATH="coverage/kahooter$challenge.coverage" NAME="challenge Coverage Results" MODIFIED="1625751851554" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/kahooter" />
++    <SUITE FILE_PATH="coverage/kahooter$challenge.coverage" NAME="challenge Coverage Results" MODIFIED="1625763652677" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/kahooter" />
+   </component>
+ </project>
+\ No newline at end of file
