@@ -8,9 +8,9 @@ import aiocometd as comet
 from __init__ import *
 
 
-class Kahoot:
+class Kahooter:
 
-    def __init__(self, pin: str, name: str, delay: float):
+    def __init__(self, pin: str, name: str, title_phrase: str, delay: float):
         self.pin = pin
         while not self.pin.isdigit():
             self.pin = input("Pin: ")
@@ -19,7 +19,10 @@ class Kahoot:
             self.name = input("Name (namerator): ")
             self.name = "namerator" if self.name == "" else self.name
         self.name = name.replace(" ", "")
-        self.delay = delay
+        self.title_phrase = title_phrase
+        while self.title_phrase == "":
+            self.title_phrase = input("Title phrase: ")
+        self.lag = delay
         self.loop = asio.get_event_loop()
         self.sess = rq.session()
         self.device = rand_device()
@@ -73,25 +76,67 @@ class Kahoot:
             # login response
             rsp = await self._recv()
             if rsp["type"] == "loginResponse":
+                # check for error
+                if "error" in rsp:
+                    print(f"Quiz not found. error={rsp['error']}")
+                    return
                 self.cid = rsp["cid"]
+
             else:
                 print("No player CID returned")
-                await self._close()
                 return
             # status
             rsp = await self._recv()
             if rsp["type"] == "status":
-                if "status" != "ACTIVE":
+                if rsp["status"] != "ACTIVE":
                     print("Quiz status is not active")
-                    await self._close()
                     return
 
             # start dance
             async for raw_msg in self.sock:
                 msg = raw_msg["data"]
-                print(lookup(msg["id"]))
+                msg_type = lookup_code(msg["id"])
 
-    async def _send(self, channel: str, data):
+                # confirmation of log in
+                if msg_type == "USERNAME_ACCEPTED":
+                    print("Logged in")
+
+                # admin has started quiz - find answers
+                elif msg_type == "START_QUIZ":
+                    details = json.loads(msg["content"])
+                    # find answers
+                    print(details)
+                    self.ans = find_answers(details, self.title_phrase)
+                    # none found
+                    if len(self.ans) == 0:
+                        return
+
+                # answer question
+                elif msg_type == "START_QUESTION":
+                    q = json.loads(msg["content"])
+                    i = q["questionIndex"]
+                    q_type = q["type"]
+                    # n_ans = q["numberOfAnswersAllowed"] TODO needed?
+
+                    # locate answer
+                    ans = self.ans[i]
+                    # submit
+                    await self._send("/service/controller", {
+                        "id": lookup_status("GAME_BLOCK_ANSWER"),
+                        "type": "message",
+                        "gameid": self.pin,
+                        "host": "kahoot.it",
+                        "content": json.dumps({
+                            "type": q_type,
+                            "choice": [a["idx"] for a in ans],
+                            "questionIndex": i,
+                            "meta": {
+                                "lag": self.lag,
+                            }
+                        })
+                    })
+
+    async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
 
     async def _recv(self) -> dict:
@@ -100,14 +145,8 @@ class Kahoot:
             return rsp["data"]
         return rsp
 
-    async def _close(self):
-        try:
-            await self.sock.close()
-        except:
-            pass
 
-
-def decrypt_sess(js_key, sess_tok) -> str:
+def decrypt_sess(js_key: str, sess_tok: str) -> str:
     """Decrypt Cometd path"""
 
     # extract message and offset
@@ -133,14 +172,14 @@ def decrypt_sess(js_key, sess_tok) -> str:
     return cometd_path
 
 
-def find_answers(details) -> list:
+def find_answers(details: dict, title_phrase: str) -> list:
     cursor = 0
     answers = []
 
     # loop through all results
     while True:
         quizzes = sess.get(
-            f"https://create.kahoot.it/rest/kahoots/?query={quote(details['quizTitle'])}&limit=100&cursor={cursor}")
+            f"https://create.kahoot.it/rest/kahoots/?query={quote(title_phrase)}&limit=100&cursor={cursor}")
         quizzes = json.loads(quizzes.content)
 
         # no results
@@ -150,22 +189,38 @@ def find_answers(details) -> list:
         # find quiz
         for e in quizzes["entities"]:
             if e["card"]["type"] == details["quizType"] and \
-                    e["card"]["title"] == details["quizTitle"] and \
                     e["card"]["number_of_questions"] == len(details["quizQuestionAnswers"]):
                 # found it, request answers
                 quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true")
                 quiz = json.loads(quiz.content)
 
+                # compute null positions
+                qs_pos = []
+                for q in quiz["kahoot"]["questions"]:
+                    qs_pos.append(None if q["type"] == "content" else 0)
+                details_pos = []
+                for a in details["quizQuestionAnswers"]:
+                    details_pos.append(None if a is None else 0)
+                # check match
+                if qs_pos != details_pos:
+                    continue
+
                 for q in quiz["kahoot"]["questions"]:
                     choices = []
-                    for i, c in enumerate(q["choices"]):
-                        if c["correct"]:
-                            choices.append({
-                                "idx": i,
-                                "answer": c["answer"]
-                            })
 
-                    if len(choices) == 1:
+                    # avoid non-answering content question
+                    if q["type"] != "content":
+                        # has answers
+                        for i, c in enumerate(q["choices"]):
+                            if c["correct"]:
+                                choices.append({
+                                    "idx": i,
+                                    "answer": c["answer"] if "answer" in c else ""
+                                })
+
+                    if len(choices) == 0:
+                        answers.append(None)
+                    elif q["type"] == "quiz":
                         # only 1 answer
                         answers.append(choices[0])
                     else:
@@ -219,28 +274,47 @@ codes = {
 }
 
 
-def lookup(code) -> str:
+def lookup_code(code: int) -> str:
     if code in codes:
         return codes[code]
     return ""
 
 
+def lookup_status(status: str) -> int:
+    for c in codes:
+        if codes[c] == status:
+            return c
+    return 0
+
+
 def arg_start():
     parser = ap.ArgumentParser()
     parser.add_argument("-pin", "--pin", help="Pin of the quiz you are automating")
+    parser.add_argument("-title_phrase", "--title_phrase", help="Search phrases in the quiz title")
     parser.add_argument("-name", "--name", default="namerator",
                         help="Player name to use with the quiz (use \"namerator\" to use Kahoot's naming system)")
-    parser.add_argument("-d", "--ans_delay", default="0", help="(optional) Delay before answering question")
+    parser.add_argument("-d", "--ans_delay", default="0", help="(optional) Delay before answering question in ms")
     args = parser.parse_args()
     try:
         _ = args.pin
     except AttributeError:
         print("No \"code\" attribute passed")
 
-    # k = Kahoot(args.pin, args.name, args.ans_delay)
-    k = Kahoot("8200308", "namerator", 0)
+    # k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
+    k = Kahooter("9117652", "namerator", "be curious with luca and friends", 0)
     k.play()
 
+    find_answers({
+        'quizType': 'quiz',
+        'quizQuestionAnswers': [4, 2, 4, None, 4, 4, 4, None, 4, 4, 4]
+    }, "luca")
+
+
+# sample details
+{
+    'quizType': 'quiz',
+    'quizQuestionAnswers': [4, 2, 4, None, 4, 4, 4, None, 4, 4, 4]
+}
 
 if __name__ == "__main__":
     arg_start()
