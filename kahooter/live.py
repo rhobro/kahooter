@@ -1,6 +1,7 @@
 import argparse as ap
 import asyncio as asio
 import base64 as b64
+import random as rand
 from urllib.parse import quote
 
 import aiocometd as comet
@@ -104,22 +105,44 @@ class Kahooter:
                 # admin has started quiz - find answers
                 elif msg_type == "START_QUIZ":
                     details = json.loads(msg["content"])
+                    print(f"Quiz started - {len(details['quizQuestionAnswers'])} questions")
+
                     # find answers
-                    print(details)
-                    self.ans = find_answers(details, self.title_phrase)
+                    self.questions = find(details, self.title_phrase)
                     # none found
-                    if len(self.ans) == 0:
+                    if len(self.questions) == 0:
                         return
+
+                # question about to be displayed
+                elif msg_type == "GET_READY":
+                    q = json.loads(msg["content"])
+                    i = q["questionIndex"]
+                    question = self.questions[i]["q"]
+                    print(f"Q{i}: {question}")
 
                 # answer question
                 elif msg_type == "START_QUESTION":
                     q = json.loads(msg["content"])
                     i = q["questionIndex"]
                     q_type = q["type"]
-                    # n_ans = q["numberOfAnswersAllowed"] TODO needed?
+                    n_opt = q["quizQuestionAnswers"][i]
 
                     # locate answer
-                    ans = self.ans[i]
+                    ans = self.questions[i]["a"]
+
+                    # decide choices
+                    if type(ans) is list:
+                        # multiple answers
+                        choice = [a["idx"] for a in ans]
+
+                    elif type(ans) is dict:
+                        # single answer
+                        choice = ans["idx"]
+
+                    else:
+                        if q_type == "survey":
+                            choice = rand.randint(0, n_opt - 1)
+
                     # submit
                     await self._send("/service/controller", {
                         "id": lookup_status("GAME_BLOCK_ANSWER"),
@@ -128,13 +151,21 @@ class Kahooter:
                         "host": "kahoot.it",
                         "content": json.dumps({
                             "type": q_type,
-                            "choice": [a["idx"] for a in ans],
+                            "choice": choice,
                             "questionIndex": i,
                             "meta": {
                                 "lag": self.lag,
                             }
                         })
                     })
+
+                    print(strfy_ans(q_type, ans) + "\n")
+
+                # question finished
+                elif msg_type == "REVEAL_ANSWER":
+                    details = json.loads(msg["content"])
+                    points_recv = details["points"]
+                    total_points = details
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
@@ -146,33 +177,7 @@ class Kahooter:
         return rsp
 
 
-def decrypt_sess(js_key: str, sess_tok: str) -> str:
-    """Decrypt Cometd path"""
-
-    # extract message and offset
-    offset_equation = js_key[js_key.index("=") + 1:].strip()
-    offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
-    tmp_msg = js_key[js_key.index("'"):]
-    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
-    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
-
-    # reserve challenge to answer
-    msg = ""
-    for i, c in enumerate(tmp_msg):
-        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)
-
-    # base64 decode session token
-    b64_sess_tok = b64.b64decode(sess_tok).decode("utf-8", "strict")
-
-    # xor message and base64 session token
-    cometd_path = ""
-    for i, c in enumerate(b64_sess_tok):
-        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
-
-    return cometd_path
-
-
-def find_answers(details: dict, title_phrase: str) -> list:
+def find(details: dict, title_phrase: str) -> list:
     cursor = 0
     answers = []
 
@@ -217,15 +222,22 @@ def find_answers(details: dict, title_phrase: str) -> list:
                                     "idx": i,
                                     "answer": c["answer"] if "answer" in c else ""
                                 })
+                    rand.shuffle(choices)
 
+                    entry = {
+                        "q": q["question"] if "question" in q else "{No question provided}",
+                    }
                     if len(choices) == 0:
-                        answers.append(None)
+                        entry["a"] = None
+
                     elif q["type"] == "quiz":
                         # only 1 answer
-                        answers.append(choices[0])
+                        entry["a"] = rand.choice(choices)
+
                     else:
                         # multiple answers
-                        answers.append(choices)
+                        entry["a"] = choices
+                    answers.append(entry)
 
                 break
 
@@ -235,6 +247,50 @@ def find_answers(details: dict, title_phrase: str) -> list:
         cursor += len(quizzes["entities"])
 
     return answers
+
+
+def decrypt_sess(js_key: str, sess_tok: str) -> str:
+    """Decrypt Cometd path"""
+
+    # extract message and offset
+    offset_equation = js_key[js_key.index("=") + 1:].strip()
+    offset_equation = offset_equation[:offset_equation.index(";")].replace("\u2003", "")
+    tmp_msg = js_key[js_key.index("'"):]
+    tmp_msg = tmp_msg[1: tmp_msg.index(")") - 1]
+    tmp_msg = (tmp_msg if tmp_msg and len(tmp_msg) > 0 else "")
+
+    # reserve challenge to answer
+    msg = ""
+    for i, c in enumerate(tmp_msg):
+        msg += chr((ord(c) * i + eval(offset_equation)) % 77 + 48)
+
+    # base64 decode session token
+    b64_sess_tok = b64.b64decode(sess_tok).decode("utf-8", "strict")
+
+    # xor message and base64 session token
+    cometd_path = ""
+    for i, c in enumerate(b64_sess_tok):
+        cometd_path += chr(ord(c) ^ ord(msg[i % len(msg)]))
+
+    return cometd_path
+
+
+def strfy_ans(q_type: str, ans) -> str:
+    stmt = " - "
+
+    if type(ans) is list:
+        # multiple answers
+        stmt += "\n - ".join([a["answer"] for a in ans])
+
+    elif type(ans) is dict:
+        # 1 answer
+        stmt += ans["answer"]
+
+    else:
+        if q_type == "survey":
+            stmt += "{It's a survey, who cares?}"
+
+    return stmt
 
 
 codes = {
@@ -301,17 +357,13 @@ def arg_start():
         print("No \"code\" attribute passed")
 
     # k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
-    k = Kahooter("9117652", "namerator", "be curious with luca and friends", 0)
+    k = Kahooter("8253290", "namerator", "be curious with luca and friends", 0)
     k.play()
-
-    find_answers({
-        'quizType': 'quiz',
-        'quizQuestionAnswers': [4, 2, 4, None, 4, 4, 4, None, 4, 4, 4]
-    }, "luca")
+    # print(json.dumps(find(deets, "luca"), indent=4))
 
 
 # sample details
-{
+deets = {
     'quizType': 'quiz',
     'quizQuestionAnswers': [4, 2, 4, None, 4, 4, 4, None, 4, 4, 4]
 }
