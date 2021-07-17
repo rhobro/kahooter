@@ -113,7 +113,9 @@
       <list>
         <item itemvalue="Python.live" />
         <item itemvalue="Python.live" />
-        <item itemvalue="Python.challenge" />
+        <item itemvalue="Python.live" />
+        <item itemvalue="Python.live" />
+        <item itemvalue="Python.live" />
       </list>
     </recent_temporary>
   </component>
@@ -343,7 +345,14 @@
       <option name="project" value="LOCAL" />
       <updated>1626377606442</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="working as well as possible - now on user interface">
+      <created>1626436826556</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1626436826556</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -378,7 +387,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="updated" />
     <MESSAGE value="created programmatic endpoint to start quiz" />
     <MESSAGE value="found answers" />
     <MESSAGE value="converted ans to idxes" />
@@ -403,7 +411,8 @@
     <MESSAGE value="init" />
     <MESSAGE value="starting moves" />
     <MESSAGE value="selecting answers correctly" />
-    <option name="LAST_COMMIT_MESSAGE" value="selecting answers correctly" />
+    <MESSAGE value="working as well as possible - now on user interface" />
+    <option name="LAST_COMMIT_MESSAGE" value="working as well as possible - now on user interface" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -413,12 +422,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/kahooter/live.py</url>
-          <line>248</line>
-          <option name="timeStamp" value="35" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/kahooter/live.py</url>
-          <line>212</line>
+          <line>242</line>
           <option name="timeStamp" value="39" />
         </line-breakpoint>
       </breakpoints>

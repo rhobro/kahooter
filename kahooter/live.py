@@ -105,7 +105,8 @@ class Kahooter:
                 # admin has started quiz - find answers
                 elif msg_type == "START_QUIZ":
                     details = json.loads(msg["content"])
-                    print(f"Quiz started - {len(details['quizQuestionAnswers'])} questions")
+
+                    print(f"Quiz started - {len(details['quizQuestionAnswers'])} questions\n")
 
                     # find answers
                     self.questions = find(details, self.title_phrase)
@@ -116,13 +117,15 @@ class Kahooter:
                 # question about to be displayed
                 elif msg_type == "GET_READY":
                     q = json.loads(msg["content"])
+
                     i = q["questionIndex"]
                     question = self.questions[i]["q"]
-                    print(f"Q{i}: {question}")
+                    print(f"Q{i + 1}: {question}")
 
                 # answer question
                 elif msg_type == "START_QUESTION":
                     q = json.loads(msg["content"])
+
                     i = q["questionIndex"]
                     q_type = q["type"]
                     n_opt = q["quizQuestionAnswers"][i]
@@ -159,13 +162,42 @@ class Kahooter:
                         })
                     })
 
-                    print(strfy_ans(q_type, ans) + "\n")
+                    print(strfy_ans(q_type, ans))
 
                 # question finished
                 elif msg_type == "REVEAL_ANSWER":
                     details = json.loads(msg["content"])
-                    points_recv = details["points"]
-                    total_points = details
+
+                    points_recv = details["points"] if "points" in details else 0
+                    total_score = details["totalScore"]
+                    print(f"Points Earned: {points_recv}\n"
+                          f"Total Score: {total_score}\n")
+
+                # quiz finished
+                elif msg_type == "GAME_OVER":
+                    details = json.loads(msg["content"])
+
+                    rank = details["rank"]
+                    n_correct = details["correctCount"]
+                    n_incorrect = details["incorrectCount"]
+                    total_score = details["totalScore"]
+
+                    print(f"Rank: {rank}\n"
+                          f"n Correct: {n_correct}\n"
+                          f"n Incorrect: {n_incorrect}\n"
+                          f"Total Score: {total_score}\n")
+
+                # show medal type
+                elif msg_type == "REVEAL_RANKING":
+                    details = json.loads(msg["content"])
+
+                    # on podium
+                    if "podiumMedalType" in details:
+                        medal_type = details["podiumMedalType"]
+                        print(get_medal(medal_type))
+
+                    # end
+                    break
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
@@ -225,7 +257,7 @@ def find(details: dict, title_phrase: str) -> list:
                     rand.shuffle(choices)
 
                     entry = {
-                        "q": q["question"] if "question" in q else "{No question provided}",
+                        "q": q["question"] if "question" in q else "{No question provided}\n",
                     }
                     if len(choices) == 0:
                         entry["a"] = None
@@ -293,7 +325,7 @@ def strfy_ans(q_type: str, ans) -> str:
     return stmt
 
 
-codes = {
+code_map = {
     1: "GET_READY",
     2: "START_QUESTION",
     3: "GAME_OVER",
@@ -331,16 +363,29 @@ codes = {
 
 
 def lookup_code(code: int) -> str:
-    if code in codes:
-        return codes[code]
+    if code in code_map:
+        return code_map[code]
     return ""
 
 
 def lookup_status(status: str) -> int:
-    for c in codes:
-        if codes[c] == status:
+    for c in code_map:
+        if code_map[c] == status:
             return c
     return 0
+
+
+medal_map = {
+    "gold": "🥇",
+    "silver": "🥈",
+    "bronze": "🥉"
+}
+
+
+def get_medal(medal_type: str) -> str:
+    if medal_type in medal_map:
+        return medal_map[medal_type]
+    return ""
 
 
 def arg_start():
@@ -357,9 +402,8 @@ def arg_start():
         print("No \"code\" attribute passed")
 
     # k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
-    k = Kahooter("8253290", "namerator", "be curious with luca and friends", 0)
+    k = Kahooter("308219", "namerator", "be curious with luca and friends", 0)
     k.play()
-    # print(json.dumps(find(deets, "luca"), indent=4))
 
 
 # sample details
