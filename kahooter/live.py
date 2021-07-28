@@ -399,10 +399,13 @@ def arg_start():
     try:
         _ = args.pin
     except AttributeError:
-        print("No \"code\" attribute passed")
+        print("No \"code\" arg passed")
+    try:
+        _ = args.title_phrase
+    except AttributeError:
+        print("No \"title_phrase\" arg passed")
 
-    # k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
-    k = Kahooter("308219", "namerator", "be curious with luca and friends", 0)
+    k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
     k.play()
 
 
