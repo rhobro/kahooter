@@ -2,7 +2,7 @@ import json
 import os
 import subprocess as sp
 import time
-
+import argparse as ap
 import requests as rq
 
 # recompile randua binary based on OS

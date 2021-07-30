@@ -1,5 +1,3 @@
-import argparse as ap
-
 from __init__ import *
 
 

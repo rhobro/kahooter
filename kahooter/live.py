@@ -1,11 +1,8 @@
-import argparse as ap
 import asyncio as asio
 import base64 as b64
 import random as rand
 from urllib.parse import quote
-
 import aiocometd as comet
-
 from __init__ import *
 
 
@@ -109,10 +106,11 @@ class Kahooter:
                     print(f"Quiz started - {len(details['quizQuestionAnswers'])} questions\n")
 
                     # find answers
-                    self.questions = find(details, self.title_phrase)
+                    self.questions, title = find(details, self.title_phrase)
                     # none found
                     if len(self.questions) == 0:
-                        return
+                        break
+                    print(f"Playing quiz: {title}\n")
 
                 # question about to be displayed
                 elif msg_type == "GET_READY":
@@ -134,17 +132,20 @@ class Kahooter:
                     ans = self.questions[i]["a"]
 
                     # decide choices
-                    if type(ans) is list:
-                        # multiple answers
-                        choice = [a["idx"] for a in ans]
+                    if q_type == "open_ended":
+                        choice = rand.choice(ans)["answer"]
 
-                    elif type(ans) is dict:
-                        # single answer
-                        choice = ans["idx"]
+                    elif q_type == "survey":
+                            choice = rand.randint(0, n_opt - 1)
 
                     else:
-                        if q_type == "survey":
-                            choice = rand.randint(0, n_opt - 1)
+                        if type(ans) is list:
+                            # multiple answers
+                            choice = [a["idx"] for a in ans]
+
+                        elif type(ans) is dict:
+                            # single answer
+                            choice = ans["idx"]
 
                     # submit
                     await self._send("/service/controller", {
@@ -197,7 +198,7 @@ class Kahooter:
                         print(get_medal(medal_type))
 
                     # end
-                    break
+                    self.sock.close()
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
@@ -209,9 +210,10 @@ class Kahooter:
         return rsp
 
 
-def find(details: dict, title_phrase: str) -> list:
+def find(details: dict, title_phrase: str) -> tuple:
     cursor = 0
     answers = []
+    title = ""
 
     # loop through all results
     while True:
@@ -230,6 +232,7 @@ def find(details: dict, title_phrase: str) -> list:
                 # found it, request answers
                 quiz = sess.get(f"https://create.kahoot.it/rest/kahoots/{e['card']['uuid']}/card/?includeKahoot=true")
                 quiz = json.loads(quiz.content)
+                title = quiz["card"]["title"]
 
                 # compute null positions
                 qs_pos = []
@@ -278,7 +281,7 @@ def find(details: dict, title_phrase: str) -> list:
 
         cursor += len(quizzes["entities"])
 
-    return answers
+    return answers, title
 
 
 def decrypt_sess(js_key: str, sess_tok: str) -> str:
