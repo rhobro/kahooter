@@ -11,6 +11,5 @@ This bot can be used to the following interfaces:
 
 - Command line
 - Programmatic
-- Web (*in development*)
 
 *Disclaimer! This bot only works on publicly available Kahoot quizzes.*
