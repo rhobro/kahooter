@@ -1,3 +1,4 @@
+import sys
 import asyncio as asio
 import base64 as b64
 import random as rand
@@ -196,9 +197,10 @@ class Kahooter:
                     if "podiumMedalType" in details:
                         medal_type = details["podiumMedalType"]
                         print(get_medal(medal_type))
-
+                    
                     # end
-                    self.sock.close()
+                    break
+                    
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)

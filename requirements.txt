@@ -1,2 +1,3 @@
 requests
 aiocometd
+random-user-agent

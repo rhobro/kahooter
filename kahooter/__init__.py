@@ -4,18 +4,31 @@ import subprocess as sp
 import time
 import argparse as ap
 import requests as rq
+from random_user_agent.user_agent import UserAgent
+from random_user_agent.params import HardwareType, SoftwareType
 
-# recompile randua binary based on OS
-os.system("go build -i -o go/bin go/randua.go")
 
 # session to use for requests
 sess = rq.session()
 
 
-# use executable to generate random header
+# UA setup
+hardwares = [
+    HardwareType.COMPUTER.value,
+    HardwareType.MOBILE.value,
+    HardwareType.MOBILE__PHONE.value,
+    HardwareType.MOBILE__TABLET.value
+]
+softwares = [
+    SoftwareType.WEB_BROWSER.value,
+    SoftwareType.BROWSER__IN_APP_BROWSER.value
+]
+ua_gen = UserAgent(hardware_types=hardwares, sofware_types=softwares)
+
+
+# UA func
 def rand_ua() -> str:
-    child = sp.Popen("go/bin/randua", stdout=sp.PIPE, stderr=sp.STDOUT)
-    return child.stdout.read().decode()
+    return ua_gen.get_random_user_agent()
 
 
 # generate random device config
