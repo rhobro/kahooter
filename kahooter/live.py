@@ -130,9 +130,11 @@ class Kahooter:
 
                     # locate answer
                     ans = self.questions[i]["a"]
+                    label = "choice"
 
                     # decide choices
                     if q_type == "open_ended":
+                        label = "text"
                         choice = rand.choice(ans)["answer"]
 
                     elif q_type == "survey":
@@ -155,7 +157,7 @@ class Kahooter:
                         "host": "kahoot.it",
                         "content": json.dumps({
                             "type": q_type,
-                            "choice": choice,
+                            label: choice,
                             "questionIndex": i,
                             "meta": {
                                 "lag": self.lag,
@@ -411,12 +413,6 @@ def arg_start():
     k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
     k.play()
 
-
-# sample details
-deets = {
-    'quizType': 'quiz',
-    'quizQuestionAnswers': [4, 2, 4, None, 4, 4, 4, None, 4, 4, 4]
-}
 
 if __name__ == "__main__":
     arg_start()
