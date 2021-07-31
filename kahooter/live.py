@@ -1,3 +1,4 @@
+import sys
 import asyncio as asio
 import base64 as b64
 import random as rand
@@ -198,9 +199,10 @@ class Kahooter:
                     if "podiumMedalType" in details:
                         medal_type = details["podiumMedalType"]
                         print(get_medal(medal_type))
-
+                    
                     # end
-                    self.sock.close()
+                    break
+                    
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
@@ -287,7 +289,7 @@ def find(details: dict, title_phrase: str) -> tuple:
 
 
 def decrypt_sess(js_key: str, sess_tok: str) -> str:
-    """Decrypt Cometd path"""
+    """Decrypt Bayeux path"""
 
     # extract message and offset
     offset_equation = js_key[js_key.index("=") + 1:].strip()
