@@ -1,9 +1,11 @@
-import sys
+import argparse as ap
 import asyncio as asio
 import base64 as b64
 import random as rand
 from urllib.parse import quote
+
 import aiocometd as comet
+
 from __init__ import *
 
 
@@ -139,7 +141,7 @@ class Kahooter:
                         choice = rand.choice(ans)["answer"]
 
                     elif q_type == "survey":
-                            choice = rand.randint(0, n_opt - 1)
+                        choice = rand.randint(0, n_opt - 1)
 
                     else:
                         if type(ans) is list:
@@ -199,10 +201,9 @@ class Kahooter:
                     if "podiumMedalType" in details:
                         medal_type = details["podiumMedalType"]
                         print(get_medal(medal_type))
-                    
+
                     # end
                     break
-                    
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
@@ -227,7 +228,7 @@ def find(details: dict, title_phrase: str) -> tuple:
 
         # no results
         if len(quizzes["entities"]) == 0:
-            return []
+            return [], ""
 
         # find quiz
         for e in quizzes["entities"]:

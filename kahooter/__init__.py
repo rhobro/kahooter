@@ -1,29 +1,25 @@
 import json
-import os
-import subprocess as sp
 import time
-import argparse as ap
-import requests as rq
-from random_user_agent.user_agent import UserAgent
-from random_user_agent.params import HardwareType, SoftwareType
 
+import requests as rq
+from random_user_agent.params import HardwareType, SoftwareType
+from random_user_agent.user_agent import UserAgent
 
 # session to use for requests
 sess = rq.session()
 
-
 # UA setup
-hardwares = [
+hardware_types = [
     HardwareType.COMPUTER.value,
     HardwareType.MOBILE.value,
     HardwareType.MOBILE__PHONE.value,
     HardwareType.MOBILE__TABLET.value
 ]
-softwares = [
+software_types = [
     SoftwareType.WEB_BROWSER.value,
     SoftwareType.BROWSER__IN_APP_BROWSER.value
 ]
-ua_gen = UserAgent(hardware_types=hardwares, sofware_types=softwares)
+ua_gen = UserAgent(hardware_types=hardware_types, sofware_types=software_types)
 
 
 # UA func

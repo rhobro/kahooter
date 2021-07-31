@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="">
+    <list default="true" id="1d2f00d8-e8f0-4ecc-aca1-b2f156214523" name="Default Changelist" comment="formatted">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kahooter/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kahooter/go/bin/randua" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kahooter/go/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kahooter/go/go.sum" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/kahooter/go/randua.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/kahooter/challenge.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/challenge.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kahooter/live.py" beforeDir="false" afterPath="$PROJECT_DIR$/kahooter/live.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -158,7 +154,7 @@
       <workItem from="1614760540695" duration="45172000" />
       <workItem from="1615018451884" duration="1451000" />
       <workItem from="1615051191498" duration="2168000" />
-      <workItem from="1627738169684" duration="256000" />
+      <workItem from="1627738169684" duration="849000" />
     </task>
     <task id="LOCAL-00001" summary="decrypted cometd">
       <created>1613598867835</created>
@@ -398,8 +394,6 @@
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="created programmatic endpoint to start quiz" />
-    <MESSAGE value="found answers" />
     <MESSAGE value="converted ans to idxes" />
     <MESSAGE value="working for normal quiz questions" />
     <MESSAGE value="working for mcq as well" />
@@ -423,20 +417,15 @@
     <MESSAGE value="starting moves" />
     <MESSAGE value="selecting answers correctly" />
     <MESSAGE value="working as well as possible - now on user interface" />
-    <option name="LAST_COMMIT_MESSAGE" value="working as well as possible - now on user interface" />
+    <MESSAGE value="Merged with codespaces" />
+    <MESSAGE value="formatted" />
+    <option name="LAST_COMMIT_MESSAGE" value="formatted" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/kahooter/live.py</url>
-          <line>247</line>
-          <option name="timeStamp" value="39" />
-        </line-breakpoint>
-      </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
           <properties notifyOnTerminate="true" exception="BaseException">
