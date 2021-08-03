@@ -1,9 +1,11 @@
-import sys
+import argparse as ap
 import asyncio as asio
 import base64 as b64
 import random as rand
 from urllib.parse import quote
+
 import aiocometd as comet
+
 from __init__ import *
 
 
@@ -131,13 +133,15 @@ class Kahooter:
 
                     # locate answer
                     ans = self.questions[i]["a"]
+                    label = "choice"
 
                     # decide choices
                     if q_type == "open_ended":
+                        label = "text"
                         choice = rand.choice(ans)["answer"]
 
                     elif q_type == "survey":
-                            choice = rand.randint(0, n_opt - 1)
+                        choice = rand.randint(0, n_opt - 1)
 
                     else:
                         if type(ans) is list:
@@ -156,7 +160,7 @@ class Kahooter:
                         "host": "kahoot.it",
                         "content": json.dumps({
                             "type": q_type,
-                            "choice": choice,
+                            label: choice,
                             "questionIndex": i,
                             "meta": {
                                 "lag": self.lag,
@@ -197,10 +201,9 @@ class Kahooter:
                     if "podiumMedalType" in details:
                         medal_type = details["podiumMedalType"]
                         print(get_medal(medal_type))
-                    
+
                     # end
                     break
-                    
 
     async def _send(self, channel: str, data: dict):
         await self.sock.publish(channel, data)
@@ -225,7 +228,7 @@ def find(details: dict, title_phrase: str) -> tuple:
 
         # no results
         if len(quizzes["entities"]) == 0:
-            return []
+            return [], ""
 
         # find quiz
         for e in quizzes["entities"]:
@@ -287,7 +290,7 @@ def find(details: dict, title_phrase: str) -> tuple:
 
 
 def decrypt_sess(js_key: str, sess_tok: str) -> str:
-    """Decrypt Cometd path"""
+    """Decrypt Bayeux path"""
 
     # extract message and offset
     offset_equation = js_key[js_key.index("=") + 1:].strip()
@@ -413,12 +416,6 @@ def arg_start():
     k = Kahooter(args.pin, args.name, args.title_phrase, args.ans_delay)
     k.play()
 
-
-# sample details
-deets = {
-    'quizType': 'quiz',
-    'quizQuestionAnswers': [4, 2, 4, None, 4, 4, 4, None, 4, 4, 4]
-}
 
 if __name__ == "__main__":
     arg_start()
