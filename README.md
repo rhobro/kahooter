@@ -13,3 +13,4 @@ This bot can be used to the following interfaces:
 - Programmatic
 
 *Disclaimer! This bot only works on publicly available Kahoot quizzes.*
+And is only for educational purposes :)
